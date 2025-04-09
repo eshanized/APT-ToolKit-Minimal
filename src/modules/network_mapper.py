@@ -8,6 +8,7 @@ from typing import Dict, List, Set, Tuple, Optional, Union, Any
 from dataclasses import dataclass, field, asdict
 from collections import defaultdict
 import networkx as nx  # For network graph representation
+import nmap  # For network scanning
 
 from src.utils.logger import get_module_logger
 from src.utils.config import ConfigManager
@@ -29,6 +30,7 @@ class NetworkNode:
     coordinates: Tuple[float, float] = field(default_factory=lambda: (0.0, 0.0))  # For visualization
     last_seen: float = field(default_factory=time.time)
     metadata: Dict[str, Any] = field(default_factory=dict)
+    nmap_data: Dict[str, Any] = field(default_factory=dict)  # To store nmap scan results
 
 @dataclass
 class NetworkLink:
@@ -130,6 +132,9 @@ class NetworkMapper:
         # Initialize the recon module for basic host discovery
         self.recon = ReconModule(config)
         
+        # Initialize nmap scanner
+        self.nmap_scanner = nmap.PortScanner()
+        
         # Load configuration settings
         self.timeout = 5
         self.max_threads = 20
@@ -147,6 +152,10 @@ class NetworkMapper:
             self.node_discovery = config.get("modules.network_mapper.node_discovery", True)
             self.topology_detection = config.get("modules.network_mapper.topology_detection", True)
             self.detail_level = config.get("modules.network_mapper.detail_level", "medium")
+        
+        # Initialize callback functions
+        self._progress_callback = None
+        self._log_callback = None
     
     def map_network(self, target: str, **kwargs) -> NetworkMapResult:
         """
@@ -163,6 +172,7 @@ class NetworkMapper:
                 - node_discovery: Whether to perform node discovery (default: True)
                 - topology_detection: Whether to detect network topology (default: True)
                 - detail_level: Scan detail level (low, medium, high)
+                - use_nmap: Whether to use nmap for scanning (default: True)
                 
         Returns:
             NetworkMapResult: Network mapping results
@@ -178,6 +188,7 @@ class NetworkMapper:
         node_discovery = kwargs.get("node_discovery", self.node_discovery)
         topology_detection = kwargs.get("topology_detection", self.topology_detection)
         detail_level = kwargs.get("detail_level", self.detail_level)
+        use_nmap = kwargs.get("use_nmap", True)  # Default to using nmap
         
         # Initialize result object
         result = NetworkMapResult(target_network=target)
@@ -222,11 +233,88 @@ class NetworkMapper:
         ip_list = self.network.cidr_to_ip_range(target_network)
         logger.info(f"Starting network mapping of {target_network} ({len(ip_list)} hosts)")
         
-        # Phase 1: Host discovery with ping sweep
-        if ping_sweep:
-            logger.info(f"Starting ping sweep of {len(ip_list)} hosts")
-            hosts = self._ping_sweep(ip_list, max_threads, timeout)
+        # Log scanning information
+        if self._log_callback:
+            self._log_callback(f"Starting network mapping of {target_network} ({len(ip_list)} hosts)")
+        
+        # Phase 1: Host discovery with ping sweep or nmap scan
+        if use_nmap:
+            if self._log_callback:
+                self._log_callback(f"[*] Starting Nmap scan on {target_network}")
             
+            # Run nmap scan
+            hosts_data = self._run_nmap_scan(target_network, detail_level)
+            
+            # Process nmap data into nodes
+            for host_ip, host_data in hosts_data.items():
+                node = NetworkNode(
+                    ip_address=host_ip,
+                    status="up",
+                    nmap_data=host_data
+                )
+                
+                # Extract hostname
+                if host_data.get('hostnames'):
+                    hostnames = host_data.get('hostnames', [])
+                    if hostnames and len(hostnames) > 0 and 'name' in hostnames[0]:
+                        node.hostname = hostnames[0]['name']
+                
+                # Extract OS info
+                if host_data.get('osmatch'):
+                    os_matches = host_data.get('osmatch', [])
+                    if os_matches and len(os_matches) > 0:
+                        node.os_info = os_matches[0]['name']
+                
+                # Extract MAC and vendor if available
+                if host_data.get('addresses'):
+                    addresses = host_data.get('addresses', {})
+                    if 'mac' in addresses:
+                        node.mac_address = addresses['mac']
+                    if 'vendor' in host_data:
+                        vendors = host_data.get('vendor', {})
+                        if node.mac_address in vendors:
+                            node.vendor = vendors[node.mac_address]
+                
+                # Determine node type based on open ports and services
+                node.node_type = self._determine_node_type_from_nmap(host_data)
+                
+                # Add the node to the result
+                result.nodes.append(node)
+                
+                # Report progress
+                if self._progress_callback:
+                    current_host_index = len(result.nodes)
+                    max_hosts = len(ip_list)
+                    message = f"Processed {current_host_index}/{max_hosts} hosts"
+                    if not self._progress_callback(current_host_index, max_hosts, message):
+                        # User requested stop
+                        logger.info("Network mapping was stopped by user request")
+                        result.notes.append("Network mapping was stopped by user request")
+                        break
+                
+                if self._log_callback:
+                    self._log_callback(f"[+] Discovered host {host_ip}")
+                    if node.hostname:
+                        self._log_callback(f"    - Hostname: {node.hostname}")
+                    if node.os_info:
+                        self._log_callback(f"    - OS: {node.os_info}")
+                    if node.mac_address:
+                        self._log_callback(f"    - MAC: {node.mac_address}")
+                    if node.vendor:
+                        self._log_callback(f"    - Vendor: {node.vendor}")
+                    
+                    # Show open ports
+                    if host_data.get('tcp'):
+                        self._log_callback(f"    - Open TCP ports:")
+                        for port, port_data in host_data['tcp'].items():
+                            service = port_data.get('name', 'unknown')
+                            self._log_callback(f"      {port}/tcp: {service}")
+        elif ping_sweep:
+            # Use the original ping sweep method
+            if self._log_callback:
+                self._log_callback(f"[*] Starting ping sweep on {len(ip_list)} hosts")
+            
+            hosts = self._ping_sweep(ip_list, max_threads, timeout)
             # Convert hosts to network nodes
             for host_ip, is_up in hosts.items():
                 node = NetworkNode(
@@ -683,3 +771,193 @@ class NetworkMapper:
         # For simplicity, we'll return an empty string
         # In a real implementation, you would use a library like manuf or a MAC vendor API
         return ""
+
+    def _run_nmap_scan(self, target: str, detail_level: str = "medium") -> Dict[str, Dict]:
+        """
+        Run an nmap scan on the target.
+        
+        Args:
+            target: Target to scan (IP, CIDR, hostname)
+            detail_level: Scan detail level (low, medium, high)
+            
+        Returns:
+            Dict[str, Dict]: Dictionary mapping IP addresses to nmap scan results
+        """
+        if self._log_callback:
+            self._log_callback(f"[*] Running nmap scan on {target} with {detail_level} detail level")
+        
+        # Configure scan arguments based on detail level
+        if detail_level == "low":
+            # Fast scan with ping discovery
+            args = "-sn"  # Ping scan only
+        elif detail_level == "medium":
+            # Default scan for most common ports with service detection
+            args = "-sS -sV -O --top-ports 100"  # SYN scan with service and OS detection
+        else:  # high
+            # Comprehensive scan
+            args = "-sS -sV -O -A --top-ports 1000"  # SYN scan with service detection, OS detection, and script scanning
+        
+        # Log the nmap command
+        if self._log_callback:
+            self._log_callback(f"[*] Running nmap command: nmap {args} {target}")
+        
+        try:
+            # Run the nmap scan
+            self.nmap_scanner.scan(hosts=target, arguments=args)
+            
+            # Get the raw XML output
+            raw_output = self.nmap_scanner.get_nmap_last_output().decode('utf-8')
+            
+            # Log the raw output for debugging if needed
+            logger.debug(f"Nmap raw output: {raw_output}")
+            
+            # Extract and display the command line output for the UI
+            if self._log_callback:
+                self._log_callback(f"\n[+] NMAP SCAN OUTPUT:")
+                
+                # Extract simplified version of the nmap output from the XML for displaying in UI
+                # Parse the raw output and extract the key elements
+                import xml.etree.ElementTree as ET
+                try:
+                    root = ET.fromstring(raw_output)
+                    
+                    # Extract nmap command and scan info
+                    nmap_command = root.attrib.get('args', 'nmap command not found')
+                    self._log_callback(f"  Command: {nmap_command}")
+                    
+                    # Extract scanner version
+                    scaninfo = root.find('scaninfo')
+                    if scaninfo is not None:
+                        scan_type = scaninfo.attrib.get('type', 'unknown')
+                        protocol = scaninfo.attrib.get('protocol', 'unknown')
+                        self._log_callback(f"  Scan type: {scan_type} ({protocol})")
+                    
+                    # Extract host information
+                    for host in root.findall('host'):
+                        status = host.find('status')
+                        if status is not None and status.attrib.get('state') == 'up':
+                            # Get IP address
+                            ip = "unknown"
+                            for addr in host.findall('address'):
+                                if addr.attrib.get('addrtype') == 'ipv4':
+                                    ip = addr.attrib.get('addr')
+                            
+                            self._log_callback(f"\n  Host: {ip} is up")
+                            
+                            # Get hostnames
+                            hostnames = host.find('hostnames')
+                            if hostnames is not None:
+                                for hostname in hostnames.findall('hostname'):
+                                    name = hostname.attrib.get('name')
+                                    self._log_callback(f"  Hostname: {name}")
+                            
+                            # Get ports
+                            ports = host.find('ports')
+                            if ports is not None:
+                                self._log_callback(f"  Ports:")
+                                for port in ports.findall('port'):
+                                    port_id = port.attrib.get('portid')
+                                    protocol = port.attrib.get('protocol')
+                                    state = port.find('state').attrib.get('state') if port.find('state') is not None else 'unknown'
+                                    
+                                    service_info = ""
+                                    service = port.find('service')
+                                    if service is not None:
+                                        service_name = service.attrib.get('name', 'unknown')
+                                        product = service.attrib.get('product', '')
+                                        version = service.attrib.get('version', '')
+                                        
+                                        service_info = f"{service_name}"
+                                        if product:
+                                            service_info += f" {product}"
+                                            if version:
+                                                service_info += f" {version}"
+                                    
+                                    self._log_callback(f"    {port_id}/{protocol} {state} {service_info}")
+                            
+                            # Get OS information
+                            os = host.find('os')
+                            if os is not None:
+                                self._log_callback(f"  OS Detection:")
+                                for osmatch in os.findall('osmatch'):
+                                    name = osmatch.attrib.get('name', 'Unknown')
+                                    accuracy = osmatch.attrib.get('accuracy', '0')
+                                    self._log_callback(f"    {name} (Accuracy: {accuracy}%)")
+                
+                except Exception as e:
+                    # If XML parsing fails, just provide the command and basic info
+                    self._log_callback(f"  Command: nmap {args} {target}")
+                    self._log_callback(f"  Error parsing detailed output: {str(e)}")
+                
+                # Log scan completion info
+                self._log_callback(f"\n[+] Nmap scan completed: {self.nmap_scanner.command_line()}")
+                self._log_callback(f"[+] Scan info: {self.nmap_scanner.scaninfo()}")
+                self._log_callback(f"[+] Scan stats: {self.nmap_scanner.scanstats()}")
+                self._log_callback(f"[+] Found {len(self.nmap_scanner.all_hosts())} hosts up")
+            
+            # Return the scan results
+            hosts = {}
+            for host in self.nmap_scanner.all_hosts():
+                hosts[host] = self.nmap_scanner[host]
+                
+            return hosts
+        except Exception as e:
+            logger.error(f"Error running nmap scan: {e}")
+            if self._log_callback:
+                self._log_callback(f"[!] Error running nmap scan: {e}")
+            return {}
+    
+    def _determine_node_type_from_nmap(self, host_data: Dict) -> str:
+        """
+        Determine the node type from nmap scan data.
+        
+        Args:
+            host_data: Nmap scan data for a host
+            
+        Returns:
+            str: Node type
+        """
+        # Check for common port signatures to identify device types
+        if not host_data.get('tcp'):
+            return "host"
+            
+        ports = host_data.get('tcp', {}).keys()
+        port_list = list(map(int, ports))
+        
+        # Check for common port signatures
+        if 80 in port_list or 443 in port_list:
+            # Web server
+            if 3306 in port_list or 5432 in port_list:
+                return "Database Server"
+            if 8080 in port_list or 8443 in port_list:
+                return "Application Server"
+            return "Web Server"
+            
+        if 22 in port_list:
+            # SSH server, likely a Linux/Unix system
+            if 21 in port_list:
+                return "FTP Server"
+            return "Linux Server"
+            
+        if 3389 in port_list:
+            # RDP port, likely a Windows system
+            if 445 in port_list or 139 in port_list:
+                return "Windows Server"
+            return "Windows Workstation"
+            
+        if 161 in port_list or 162 in port_list:
+            # SNMP, likely a network device
+            if 23 in port_list:
+                return "Network Switch"
+            return "Network Device"
+            
+        if 53 in port_list:
+            # DNS server
+            return "DNS Server"
+            
+        if 25 in port_list or 587 in port_list:
+            # Mail server
+            return "Mail Server"
+            
+        # Default to host if no specific type is identified
+        return "host"
