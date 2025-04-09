@@ -807,6 +807,11 @@ class NetworkMapper:
         if self._log_callback:
             self._log_callback(f"[*] Running nmap scan on {target} with {detail_level} detail level")
         
+        # Import OS module with alias to avoid any shadowing
+        import os as os_module
+        # Check if we're running as root
+        is_root = os_module.geteuid() == 0 if hasattr(os_module, 'geteuid') else False
+        
         # Base arguments depending on detail level
         if detail_level == "low":
             # Fast scan with ping discovery - compatible with non-root
@@ -818,95 +823,174 @@ class NetworkMapper:
             # Comprehensive scan
             args = "-sT -sV -A --top-ports 1000"  # Connect scan with service detection and script scanning
         
-        # Check if we're running as root
-        import os as os_module  # Import with alias to avoid any shadowing
-        is_root = os_module.geteuid() == 0 if hasattr(os_module, 'geteuid') else False
-        
         # If scan options are provided, build custom arguments
         if scan_options:
             # Reset args as we'll build them from scratch
             args = ""
+            selected_scan_types = []
             
             # Scan types - avoid privileged scans if not root
-            if scan_options.get("tcp_syn_scan") and is_root:
-                args += " -sS"
-            elif scan_options.get("tcp_syn_scan"):
-                args += " -sT"  # Fall back to connect scan
-                if self._log_callback:
-                    self._log_callback(f"[!] SYN scan requires root privileges, using TCP Connect scan instead.")
+            # 1. TCP SYN Scan (requires root)
+            if scan_options.get("tcp_syn_scan"):
+                if is_root:
+                    selected_scan_types.append("-sS")
+                    if self._log_callback:
+                        self._log_callback(f"[*] Using TCP SYN scan (-sS)")
+                else:
+                    if self._log_callback:
+                        self._log_callback(f"[!] SYN scan requires root privileges, using TCP Connect scan instead.")
+                    selected_scan_types.append("-sT")
             
+            # 2. TCP Connect Scan (doesn't require root)
             if scan_options.get("tcp_connect_scan"):
-                args += " -sT"
-                
-            if scan_options.get("udp_scan") and is_root:
-                args += " -sU"
-            elif scan_options.get("udp_scan"):
+                selected_scan_types.append("-sT")
                 if self._log_callback:
-                    self._log_callback(f"[!] UDP scan requires root privileges, skipping.")
-                
+                    self._log_callback(f"[*] Using TCP Connect scan (-sT)")
+            
+            # 3. UDP Scan (requires root)
+            if scan_options.get("udp_scan"):
+                if is_root:
+                    selected_scan_types.append("-sU")
+                    if self._log_callback:
+                        self._log_callback(f"[*] Using UDP scan (-sU)")
+                else:
+                    if self._log_callback:
+                        self._log_callback(f"[!] UDP scan requires root privileges, skipping.")
+            
+            # 4. Ping Scan
             if scan_options.get("ping_scan"):
-                args += " -sn"
-                
-            if scan_options.get("fin_scan") and is_root:
-                args += " -sF"
-            elif scan_options.get("fin_scan"):
+                selected_scan_types.append("-sn")
                 if self._log_callback:
-                    self._log_callback(f"[!] FIN scan requires root privileges, skipping.")
-                
-            if scan_options.get("null_scan") and is_root:
-                args += " -sN"
-            elif scan_options.get("null_scan"):
+                    self._log_callback(f"[*] Using Ping scan (-sn)")
+            
+            # 5. FIN Scan (requires root)
+            if scan_options.get("fin_scan"):
+                if is_root:
+                    selected_scan_types.append("-sF")
+                    if self._log_callback:
+                        self._log_callback(f"[*] Using FIN scan (-sF)")
+                else:
+                    if self._log_callback:
+                        self._log_callback(f"[!] FIN scan requires root privileges, skipping.")
+            
+            # 6. NULL Scan (requires root)
+            if scan_options.get("null_scan"):
+                if is_root:
+                    selected_scan_types.append("-sN")
+                    if self._log_callback:
+                        self._log_callback(f"[*] Using NULL scan (-sN)")
+                else:
+                    if self._log_callback:
+                        self._log_callback(f"[!] NULL scan requires root privileges, skipping.")
+            
+            # 7. XMAS Scan (requires root)
+            if scan_options.get("xmas_scan"):
+                if is_root:
+                    selected_scan_types.append("-sX")
+                    if self._log_callback:
+                        self._log_callback(f"[*] Using XMAS scan (-sX)")
+                else:
+                    if self._log_callback:
+                        self._log_callback(f"[!] XMAS scan requires root privileges, skipping.")
+            
+            # 8. IDLE Scan (requires root)
+            if scan_options.get("idle_scan") and scan_options.get("idle_zombie"):
+                if is_root:
+                    zombie = self._validate_ip(scan_options.get('idle_zombie', ''))
+                    if zombie:
+                        selected_scan_types.append(f"-sI {zombie}")
+                        if self._log_callback:
+                            self._log_callback(f"[*] Using IDLE scan (-sI) with zombie {zombie}")
+                else:
+                    if self._log_callback:
+                        self._log_callback(f"[!] IDLE scan requires root privileges, skipping.")
+            
+            # 9. IP Protocol Scan (requires root)
+            if scan_options.get("ip_protocol_scan"):
+                if is_root:
+                    selected_scan_types.append("-sO")
+                    if self._log_callback:
+                        self._log_callback(f"[*] Using IP Protocol scan (-sO)")
+                else:
+                    if self._log_callback:
+                        self._log_callback(f"[!] IP Protocol scan requires root privileges, skipping.")
+            
+            # If no scan type was selected, add TCP Connect scan as default
+            if not selected_scan_types:
+                selected_scan_types.append("-sT")
                 if self._log_callback:
-                    self._log_callback(f"[!] NULL scan requires root privileges, skipping.")
-                
-            if scan_options.get("xmas_scan") and is_root:
-                args += " -sX"
-            elif scan_options.get("xmas_scan"):
-                if self._log_callback:
-                    self._log_callback(f"[!] XMAS scan requires root privileges, skipping.")
-                
-            if scan_options.get("idle_scan") and scan_options.get("idle_zombie") and is_root:
-                zombie = self._validate_ip(scan_options.get('idle_zombie', ''))
-                if zombie:
-                    args += f" -sI {zombie}"
-            elif scan_options.get("idle_scan"):
-                if self._log_callback:
-                    self._log_callback(f"[!] Idle scan requires root privileges, skipping.")
-                
-            if scan_options.get("ip_protocol_scan") and is_root:
-                args += " -sO"
-            elif scan_options.get("ip_protocol_scan"):
-                if self._log_callback:
-                    self._log_callback(f"[!] IP Protocol scan requires root privileges, skipping.")
-                
-            # If no scan type was added due to permission issues, add a default TCP Connect scan
-            if not any(arg in args for arg in ["-sS", "-sT", "-sU", "-sF", "-sN", "-sX", "-sI", "-sO", "-sn"]):
-                args += " -sT"
-                
+                    self._log_callback(f"[*] No valid scan types selected, using default TCP Connect scan (-sT)")
+            
+            # Add the selected scan types to arguments
+            args += " ".join(selected_scan_types)
+            
             # Discovery options
+            discovery_options = []
+            
             if scan_options.get("disable_ping"):
-                args += " -Pn"
+                discovery_options.append("-Pn")
+                if self._log_callback:
+                    self._log_callback(f"[*] Disabling ping (-Pn)")
+            
             if scan_options.get("tcp_syn_ping"):
-                args += " -PS"
-            if scan_options.get("tcp_ack_ping") and is_root:
-                args += " -PA"
-            if scan_options.get("udp_ping") and is_root:
-                args += " -PU"
-            if scan_options.get("sctp_ping") and is_root:
-                args += " -PY"
-            if scan_options.get("icmp_echo_ping") and is_root:
-                args += " -PE"
-                
+                discovery_options.append("-PS")
+                if self._log_callback:
+                    self._log_callback(f"[*] Using TCP SYN ping (-PS)")
+            
+            if scan_options.get("tcp_ack_ping"):
+                if is_root:
+                    discovery_options.append("-PA")
+                    if self._log_callback:
+                        self._log_callback(f"[*] Using TCP ACK ping (-PA)")
+                else:
+                    if self._log_callback:
+                        self._log_callback(f"[!] TCP ACK ping requires root privileges, skipping.")
+            
+            if scan_options.get("udp_ping"):
+                if is_root:
+                    discovery_options.append("-PU")
+                    if self._log_callback:
+                        self._log_callback(f"[*] Using UDP ping (-PU)")
+                else:
+                    if self._log_callback:
+                        self._log_callback(f"[!] UDP ping requires root privileges, skipping.")
+            
+            if scan_options.get("sctp_ping"):
+                if is_root:
+                    discovery_options.append("-PY")
+                    if self._log_callback:
+                        self._log_callback(f"[*] Using SCTP ping (-PY)")
+                else:
+                    if self._log_callback:
+                        self._log_callback(f"[!] SCTP ping requires root privileges, skipping.")
+            
+            if scan_options.get("icmp_echo_ping"):
+                if is_root:
+                    discovery_options.append("-PE")
+                    if self._log_callback:
+                        self._log_callback(f"[*] Using ICMP echo ping (-PE)")
+                else:
+                    if self._log_callback:
+                        self._log_callback(f"[!] ICMP echo ping requires root privileges, skipping.")
+            
+            # Add discovery options to arguments
+            if discovery_options:
+                args += " " + " ".join(discovery_options)
+            
             # Advanced options
             port_range = self._validate_port_range(scan_options.get('port_range', ''))
             if port_range:
                 args += f" -p {port_range}"
+                if self._log_callback:
+                    self._log_callback(f"[*] Using port range: {port_range}")
             
             # Timing template
             timing_idx = scan_options.get("timing_template")
             if timing_idx is not None:
                 if 0 <= timing_idx <= 5:
                     args += f" -T{timing_idx}"
+                    if self._log_callback:
+                        self._log_callback(f"[*] Using timing template: T{timing_idx}")
             
             # Script scan
             if scan_options.get("script_scan"):
@@ -914,23 +998,35 @@ class NetworkMapper:
                     script_args = self._validate_script_args(scan_options.get('script_args', ''))
                     if script_args:
                         args += f" --script={script_args}"
+                        if self._log_callback:
+                            self._log_callback(f"[*] Running scripts: {script_args}")
                 else:
                     args += " -sC"  # Default scripts
+                    if self._log_callback:
+                        self._log_callback(f"[*] Using default scripts (-sC)")
             
             # Version detection
             if scan_options.get("version_detection"):
                 args += " -sV"
+                if self._log_callback:
+                    self._log_callback(f"[*] Enabling version detection (-sV)")
+                
                 if scan_options.get("version_intensity") is not None:
                     intensity = scan_options.get("version_intensity")
                     if 0 <= intensity <= 9:
                         args += f" --version-intensity {intensity}"
+                        if self._log_callback:
+                            self._log_callback(f"[*] Using version intensity: {intensity}")
             
             # OS Detection if requested
-            if scan_options.get("os_detection") and is_root:
-                args += " -O"
-            elif scan_options.get("os_detection"):
-                if self._log_callback:
-                    self._log_callback(f"[!] OS detection requires root privileges, skipping.")
+            if scan_options.get("os_detection"):
+                if is_root:
+                    args += " -O"
+                    if self._log_callback:
+                        self._log_callback(f"[*] Enabling OS detection (-O)")
+                else:
+                    if self._log_callback:
+                        self._log_callback(f"[!] OS detection requires root privileges, skipping.")
             
             # Always add -v for verbosity
             args += " -v"
@@ -940,6 +1036,8 @@ class NetworkMapper:
                 custom_args = self._validate_custom_args(scan_options.get('custom_args', ''))
                 if custom_args:
                     args = custom_args
+                    if self._log_callback:
+                        self._log_callback(f"[*] Using custom arguments: {custom_args}")
         
         # Trim leading/trailing whitespace
         args = args.strip()
@@ -947,6 +1045,8 @@ class NetworkMapper:
         # If no scan type included, add a basic connect scan
         if not any(arg in args for arg in ["-sS", "-sT", "-sU", "-sF", "-sN", "-sX", "-sI", "-sO", "-sn"]):
             args = "-sT " + args
+            if self._log_callback:
+                self._log_callback(f"[*] No scan type specified, using TCP Connect scan (-sT)")
 
         # Always use -Pn if not already specified to avoid ping issues
         if "-Pn" not in args:
@@ -1045,53 +1145,54 @@ class NetworkMapper:
                 try:
                     # Try to parse the XML output
                     if raw_output.strip():
-                        root = ET.fromstring(raw_output)
+                        xml_root = ET.fromstring(raw_output)
                         
                         # Extract nmap command and scan info
-                        nmap_command = root.attrib.get('args', 'nmap command not found')
+                        nmap_command = xml_root.attrib.get('args', 'nmap command not found')
                         self._log_callback(f"  Command: {nmap_command}")
                         
                         # Extract scanner version
-                        scaninfo = root.find('scaninfo')
-                        if scaninfo is not None:
-                            scan_type = scaninfo.attrib.get('type', 'unknown')
-                            protocol = scaninfo.attrib.get('protocol', 'unknown')
+                        xml_scaninfo = xml_root.find('scaninfo')
+                        if xml_scaninfo is not None:
+                            scan_type = xml_scaninfo.attrib.get('type', 'unknown')
+                            protocol = xml_scaninfo.attrib.get('protocol', 'unknown')
                             self._log_callback(f"  Scan type: {scan_type} ({protocol})")
                         
                         # Extract host information
-                        for host in root.findall('host'):
-                            status = host.find('status')
-                            if status is not None and status.attrib.get('state') == 'up':
+                        for xml_host in xml_root.findall('host'):
+                            xml_status = xml_host.find('status')
+                            if xml_status is not None and xml_status.attrib.get('state') == 'up':
                                 # Get IP address
-                                ip = "unknown"
-                                for addr in host.findall('address'):
-                                    if addr.attrib.get('addrtype') == 'ipv4':
-                                        ip = addr.attrib.get('addr')
+                                host_ip = "unknown"
+                                for xml_addr in xml_host.findall('address'):
+                                    if xml_addr.attrib.get('addrtype') == 'ipv4':
+                                        host_ip = xml_addr.attrib.get('addr')
                                 
-                                self._log_callback(f"\n  Host: {ip} is up")
+                                self._log_callback(f"\n  Host: {host_ip} is up")
                                 
                                 # Get hostnames
-                                hostnames = host.find('hostnames')
-                                if hostnames is not None:
-                                    for hostname in hostnames.findall('hostname'):
-                                        name = hostname.attrib.get('name')
+                                xml_hostnames = xml_host.find('hostnames')
+                                if xml_hostnames is not None:
+                                    for xml_hostname in xml_hostnames.findall('hostname'):
+                                        name = xml_hostname.attrib.get('name')
                                         self._log_callback(f"  Hostname: {name}")
                                 
                                 # Get ports
-                                ports = host.find('ports')
-                                if ports is not None:
+                                xml_ports = xml_host.find('ports')
+                                if xml_ports is not None:
                                     self._log_callback(f"  Ports:")
-                                    for port in ports.findall('port'):
-                                        port_id = port.attrib.get('portid')
-                                        protocol = port.attrib.get('protocol')
-                                        state = port.find('state').attrib.get('state') if port.find('state') is not None else 'unknown'
+                                    for xml_port in xml_ports.findall('port'):
+                                        port_id = xml_port.attrib.get('portid')
+                                        protocol = xml_port.attrib.get('protocol')
+                                        xml_state = xml_port.find('state')
+                                        state = xml_state.attrib.get('state') if xml_state is not None else 'unknown'
                                         
                                         service_info = ""
-                                        service = port.find('service')
-                                        if service is not None:
-                                            service_name = service.attrib.get('name', 'unknown')
-                                            product = service.attrib.get('product', '')
-                                            version = service.attrib.get('version', '')
+                                        xml_service = xml_port.find('service')
+                                        if xml_service is not None:
+                                            service_name = xml_service.attrib.get('name', 'unknown')
+                                            product = xml_service.attrib.get('product', '')
+                                            version = xml_service.attrib.get('version', '')
                                             
                                             service_info = f"{service_name}"
                                             if product:
@@ -1102,30 +1203,30 @@ class NetworkMapper:
                                         self._log_callback(f"    {port_id}/{protocol} {state} {service_info}")
                                         
                                         # Display script output for this port if available
-                                        for script in port.findall('script'):
-                                            script_id = script.attrib.get('id', 'unknown')
-                                            output = script.attrib.get('output', '').strip()
+                                        for xml_script in xml_port.findall('script'):
+                                            script_id = xml_script.attrib.get('id', 'unknown')
+                                            output = xml_script.attrib.get('output', '').strip()
                                             # Only show the first 100 chars of script output
                                             if len(output) > 100:
                                                 output = output[:100] + "..."
                                             self._log_callback(f"      {script_id}: {output}")
                                 
                                 # Get OS information
-                                os_elem = host.find('os')
-                                if os_elem is not None:
+                                xml_os = xml_host.find('os')
+                                if xml_os is not None:
                                     self._log_callback(f"  OS Detection:")
-                                    for osmatch in os_elem.findall('osmatch'):
-                                        name = osmatch.attrib.get('name', 'Unknown')
-                                        accuracy = osmatch.attrib.get('accuracy', '0')
+                                    for xml_osmatch in xml_os.findall('osmatch'):
+                                        name = xml_osmatch.attrib.get('name', 'Unknown')
+                                        accuracy = xml_osmatch.attrib.get('accuracy', '0')
                                         self._log_callback(f"    {name} (Accuracy: {accuracy}%)")
                                 
                                 # Get hostname from host-level scripts
-                                hostscripts = host.find('hostscripts')
-                                if hostscripts is not None:
+                                xml_hostscripts = xml_host.find('hostscripts')
+                                if xml_hostscripts is not None:
                                     self._log_callback(f"  Host Scripts:")
-                                    for script in hostscripts.findall('script'):
-                                        script_id = script.attrib.get('id', 'unknown')
-                                        output = script.attrib.get('output', '').strip()
+                                    for xml_script in xml_hostscripts.findall('script'):
+                                        script_id = xml_script.attrib.get('id', 'unknown')
+                                        output = xml_script.attrib.get('output', '').strip()
                                         # Only show the first 100 chars of script output
                                         if len(output) > 100:
                                             output = output[:100] + "..."
