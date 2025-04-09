@@ -1,0 +1,867 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>BruteForceWindow</class>
+ <widget class="QWidget" name="BruteForceWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Brute Force</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>../assets/icons/brute_force.png</normaloff>../assets/icons/brute_force.png</iconset>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QSplitter" name="splitter">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <widget class="QWidget" name="configWidget" native="true">
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QGroupBox" name="targetGroupBox">
+         <property name="title">
+          <string>Target</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="protocolLabel">
+            <property name="text">
+             <string>Protocol:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="protocolComboBox">
+            <item>
+             <property name="text">
+              <string>SSH</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>FTP</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>HTTP Basic</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>HTTP Form</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>HTTP Digest</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>SMTP</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>POP3</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>IMAP</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Telnet</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>SMB</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>RDP</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>MySQL</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>PostgreSQL</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>MSSQL</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Oracle</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>MongoDB</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Redis</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>VNC</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Custom</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="hostLabel">
+            <property name="text">
+             <string>Host:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="hostLineEdit">
+            <property name="placeholderText">
+             <string>Enter hostname or IP address</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="portLabel">
+            <property name="text">
+             <string>Port:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QSpinBox" name="portSpinBox">
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>65535</number>
+            </property>
+            <property name="value">
+             <number>22</number>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="urlLabel">
+            <property name="text">
+             <string>URL:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLineEdit" name="urlLineEdit">
+            <property name="placeholderText">
+             <string>For HTTP protocols, enter the URL</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="formParamsLabel">
+            <property name="text">
+             <string>Form Parameters:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QLineEdit" name="formParamsLineEdit">
+            <property name="placeholderText">
+             <string>For HTTP Form, enter parameters (e.g., user_field=username&amp;pass_field=password)</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="credentialsGroupBox">
+         <property name="title">
+          <string>Credentials</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <widget class="QTabWidget" name="credentialsTabWidget">
+            <property name="currentIndex">
+             <number>0</number>
+            </property>
+            <widget class="QWidget" name="dictionaryTab">
+             <attribute name="title">
+              <string>Dictionary Attack</string>
+             </attribute>
+             <layout class="QFormLayout" name="formLayout_2">
+              <item row="0" column="0">
+               <widget class="QLabel" name="usernameListLabel">
+                <property name="text">
+                 <string>Username List:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <layout class="QHBoxLayout" name="horizontalLayout">
+                <item>
+                 <widget class="QComboBox" name="usernameListComboBox">
+                  <item>
+                   <property name="text">
+                    <string>Default</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Common</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Extended</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Custom</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLineEdit" name="usernameListLineEdit">
+                  <property name="placeholderText">
+                   <string>Path to custom username list</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="browseUsernameButton">
+                  <property name="text">
+                   <string>Browse</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="passwordListLabel">
+                <property name="text">
+                 <string>Password List:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <layout class="QHBoxLayout" name="horizontalLayout_2">
+                <item>
+                 <widget class="QComboBox" name="passwordListComboBox">
+                  <item>
+                   <property name="text">
+                    <string>Default</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Common</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Extended</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Top 10000</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Custom</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLineEdit" name="passwordListLineEdit">
+                  <property name="placeholderText">
+                   <string>Path to custom password list</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="browsePasswordButton">
+                  <property name="text">
+                   <string>Browse</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="singleUsernameLabel">
+                <property name="text">
+                 <string>Single Username:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QLineEdit" name="singleUsernameLineEdit">
+                <property name="placeholderText">
+                 <string>Enter a single username to try (optional)</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="credentialStuffingTab">
+             <attribute name="title">
+              <string>Credential Stuffing</string>
+             </attribute>
+             <layout class="QFormLayout" name="formLayout_3">
+              <item row="0" column="0">
+               <widget class="QLabel" name="credentialListLabel">
+                <property name="text">
+                 <string>Credential List:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <layout class="QHBoxLayout" name="horizontalLayout_3">
+                <item>
+                 <widget class="QLineEdit" name="credentialListLineEdit">
+                  <property name="placeholderText">
+                   <string>Path to credential list (username:password format)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="browseCredentialButton">
+                  <property name="text">
+                   <string>Browse</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="delimiterLabel">
+                <property name="text">
+                 <string>Delimiter:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QLineEdit" name="delimiterLineEdit">
+                <property name="text">
+                 <string>:</string>
+                </property>
+                <property name="maxLength">
+                 <number>1</number>
+                </property>
+                <property name="placeholderText">
+                 <string>Character separating username and password</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="customTab">
+             <attribute name="title">
+              <string>Custom</string>
+             </attribute>
+             <layout class="QVBoxLayout" name="verticalLayout_4">
+              <item>
+               <widget class="QPlainTextEdit" name="customCredentialsTextEdit">
+                <property name="placeholderText">
+                 <string>Enter custom credentials to try (one per line, format: username:password)</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="optionsGroupBox">
+         <property name="title">
+          <string>Options</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <widget class="QWidget" name="leftOptionsWidget" native="true">
+            <layout class="QFormLayout" name="formLayout_4">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item row="0" column="0">
+              <widget class="QLabel" name="threadsLabel">
+               <property name="text">
+                <string>Threads:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QSpinBox" name="threadsSpinBox">
+               <property name="minimum">
+                <number>1</number>
+               </property>
+               <property name="maximum">
+                <number>50</number>
+               </property>
+               <property name="value">
+                <number>5</number>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel" name="timeoutLabel">
+               <property name="text">
+                <string>Timeout (sec):</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QSpinBox" name="timeoutSpinBox">
+               <property name="minimum">
+                <number>1</number>
+               </property>
+               <property name="maximum">
+                <number>300</number>
+               </property>
+               <property name="value">
+                <number>10</number>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QLabel" name="delayLabel">
+               <property name="text">
+                <string>Delay (ms):</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QSpinBox" name="delaySpinBox">
+               <property name="maximum">
+                <number>10000</number>
+               </property>
+               <property name="singleStep">
+                <number>100</number>
+               </property>
+               <property name="value">
+                <number>500</number>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QWidget" name="rightOptionsWidget" native="true">
+            <layout class="QVBoxLayout" name="verticalLayout_5">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QCheckBox" name="stopOnSuccessCheckBox">
+               <property name="text">
+                <string>Stop on first success</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="verboseCheckBox">
+               <property name="text">
+                <string>Verbose output</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="saveResultsCheckBox">
+               <property name="text">
+                <string>Save results to file</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="jitterCheckBox">
+               <property name="text">
+                <string>Add random jitter to delay</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <item>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="startButton">
+           <property name="minimumSize">
+            <size>
+             <width>120</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Start Attack</string>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>../assets/icons/start.png</normaloff>../assets/icons/start.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="stopButton">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>120</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Stop</string>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>../assets/icons/stop.png</normaloff>../assets/icons/stop.png</iconset>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QTabWidget" name="resultsTabWidget">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="statusTab">
+       <attribute name="title">
+        <string>Status</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_6">
+        <item>
+         <widget class="QTextEdit" name="statusTextEdit">
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+          <property name="font">
+           <font>
+            <family>Consolas</family>
+           </font>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="resultsTab">
+       <attribute name="title">
+        <string>Results</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_7">
+        <item>
+         <widget class="QTableView" name="resultsTableView">
+          <property name="alternatingRowColors">
+           <bool>true</bool>
+          </property>
+          <property name="selectionBehavior">
+           <enum>QAbstractItemView::SelectRows</enum>
+          </property>
+          <property name="sortingEnabled">
+           <bool>true</bool>
+          </property>
+          <attribute name="horizontalHeaderStretchLastSection">
+           <bool>true</bool>
+          </attribute>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_6">
+          <item>
+           <widget class="QPushButton" name="copyButton">
+            <property name="text">
+             <string>Copy Selected</string>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normaloff>../assets/icons/copy.png</normaloff>../assets/icons/copy.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="exportButton">
+            <property name="text">
+             <string>Export Results</string>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normaloff>../assets/icons/export.png</normaloff>../assets/icons/export.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="useCredentialsButton">
+            <property name="text">
+             <string>Use Credentials</string>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normaloff>../assets/icons/use.png</normaloff>../assets/icons/use.png</iconset>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="statisticsTab">
+       <attribute name="title">
+        <string>Statistics</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_8">
+        <item>
+         <widget class="QFrame" name="statsFrame">
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QGridLayout" name="gridLayout">
+           <item row="0" column="0">
+            <widget class="QLabel" name="attemptsLabel">
+             <property name="text">
+              <string>Attempts:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLabel" name="attemptsValueLabel">
+             <property name="text">
+              <string>0</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <widget class="QLabel" name="successLabel">
+             <property name="text">
+              <string>Successful:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3">
+            <widget class="QLabel" name="successValueLabel">
+             <property name="text">
+              <string>0</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="failedLabel">
+             <property name="text">
+              <string>Failed:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLabel" name="failedValueLabel">
+             <property name="text">
+              <string>0</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <widget class="QLabel" name="remainingLabel">
+             <property name="text">
+              <string>Remaining:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="3">
+            <widget class="QLabel" name="remainingValueLabel">
+             <property name="text">
+              <string>0</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="elapsedLabel">
+             <property name="text">
+              <string>Elapsed Time:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLabel" name="elapsedValueLabel">
+             <property name="text">
+              <string>00:00:00</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="2">
+            <widget class="QLabel" name="estimatedLabel">
+             <property name="text">
+              <string>Estimated Time:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="3">
+            <widget class="QLabel" name="estimatedValueLabel">
+             <property name="text">
+              <string>00:00:00</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="rateLabel">
+             <property name="text">
+              <string>Rate:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QLabel" name="rateValueLabel">
+             <property name="text">
+              <string>0 attempts/sec</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="2">
+            <widget class="QLabel" name="progressLabel">
+             <property name="text">
+              <string>Progress:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="3">
+            <widget class="QLabel" name="progressValueLabel">
+             <property name="text">
+              <string>0%</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QWidget" name="chartWidget" native="true">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>200</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </widget>
+   </item>
+   <item>
+    <widget class="QProgressBar" name="progressBar">
+     <property name="value">
+      <number>0</number>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="statusLabel">
+     <property name="text">
+      <string>Ready</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

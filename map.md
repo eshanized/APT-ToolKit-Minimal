@@ -1,73 +1,63 @@
-# 📍 APT-ToolKit – Development Roadmap
+Based on your directory structure, here's a recommended sequence for developing your APT-Toolkit project, organized in a logical order that builds from core components to more specialized features:
 
-> A step-by-step guide to building the toolkit from core to GUI.
+### Phase 1: Core Infrastructure
+1. `src/utils/logger.py` (already completed)
+2. `src/utils/config.py` - Configuration management system
+3. `src/utils/helpers.py` - Common utility functions
+4. `src/utils/validators.py` - Input validation functions
+5. `src/core/thread_pool.py` - Thread management
+6. `src/core/dispatcher.py` - Task dispatching system
+7. `src/core/scheduler.py` - Task scheduling functionality
+8. `src/core/plugin_loader.py` - Dynamic module loading
 
----
+### Phase 2: Network Utilities
+9. `src/utils/network.py` - Network-related utility functions
 
-## ✅ Phase 1: Core Infrastructure
+### Phase 3: Basic Module Development
+10. `src/modules/recon.py` - Reconnaissance module
+11. `src/modules/network_mapper.py` - Network mapping functionality
+12. `src/modules/service_enum.py` - Service enumeration
+13. `src/modules/scan_engine.py` - Scanning core engine
+14. `src/modules/web_scanner.py` - Web application scanning
 
-| Task                                          | Status  |
-|-----------------------------------------------|---------|
-| Create `src/utils/logger.py`                  | ✅ Done |
-| Implement `src/core/engine.py`                | ✅ Done |
-| Design `src/core/dispatcher.py`               | ✅ Done  |
-| Add `src/utils/helpers.py`                    | ✅ Done  |
-| Create `src/utils/config.py`                  | ✅ Done  |
-| Add `src/core/plugin_loader.py` *(optional)*  | ✅ Done  |
+### Phase 4: Advanced Modules
+15. `src/modules/vuln_scanner.py` - Vulnerability scanning
+16. `src/modules/brute_force.py` - Brute force attack tools
+17. `src/modules/auth_bypass.py` - Authentication bypass techniques
+18. `src/modules/payload_gen.py` - Payload generation
+19. `src/modules/exploit_exec.py` - Exploit execution
+20. `src/core/engine.py` - Integration of all modules
 
----
+### Phase 5: Reporting & Output
+21. `src/modules/report_gen.py` - Report generation
+22. `src/templates/report_template.html` - Report template
 
-## 🧪 Phase 2: Base Modules & Tests
+### Phase 6: UI Development
+23. `src/styles/style.qss` - Application styling
+24. UI files in order of complexity:
+   - `src/ui/main_window.ui`
+   - `src/ui/terminal.ui`
+   - `src/ui/settings.ui`
+   - `src/ui/logs.ui`
+   - `src/ui/recon.ui`
+   - `src/ui/scan_result.ui`
+   - `src/ui/vuln_scanner.ui`
+   - `src/ui/brute_force.ui`
+   - `src/ui/payload_gen.ui`
+   - `src/ui/exploit_exec.ui`
+   - `src/ui/report.ui`
+25. `src/main.py` - Main application entry point
 
-| Task                                          | Status  |
-|-----------------------------------------------|---------|
-| Build `src/modules/recon.py`                  | ✅ Done  |
-| Build `src/modules/brute_force.py`            | ✅ Done  |
-| Create `src/tests/test_recon.py`              | ✅ Done  |
-| Build `src/modules/report_gen.py`             | ✅ Done  |
+### Phase 7: Testing
+26. `tests/test_recon.py`
+27. `tests/test_vuln_scanner.py`
+28. `tests/test_brute_force.py`
 
----
+### Phase 8: Documentation & Finalization
+29. `README.md` - Project documentation
+30. `overview.md` - Project overview
+31. `map.md` - Project structure documentation
+32. `requirements.txt` - Final dependency list
+33. `scripts/run_gui.sh` - Launch script
 
-## 🖼️ Phase 3: GUI Foundation
-
-| Task                                          | Status  |
-|-----------------------------------------------|---------|
-| Design `src/ui/main_window.ui`                | ☐ Todo  |
-| Design `src/ui/recon.ui`                      | ☐ Todo  |
-| Create `src/ui/logs.ui`                       | ☐ Todo  |
-| Implement `src/main.py`                       | ☐ Todo  |
-
----
-
-## 🔄 Phase 4: Module Expansion
-
-| Task                                          | Status  |
-|-----------------------------------------------|---------|
-| Build `src/modules/vuln_scanner.py`           | ☐ Todo  |
-| Build `src/modules/exploit_exec.py`           | ☐ Todo  |
-| Build `src/modules/web_scanner.py`            | ☐ Todo  |
-| Create corresponding UI files (`.ui`)         | ☐ Todo  |
-
----
-
-## ⚙️ Phase 5: Utilities & Assets
-
-| Task                                          | Status  |
-|-----------------------------------------------|---------|
-| Add `src/utils/validators.py`                 | ☐ Todo  |
-| Create `src/templates/report_template.html`   | ☐ Todo  |
-| Add wordlists to `src/wordlists/`             | ☐ Todo  |
-| Write `scripts/run_gui.sh`                    | ✅ Done |
-| Write/Update `README.md`                      | ☐ Todo  |
-
----
-
-## 🌟 Future Enhancements (Optional)
-
-| Feature                                       | Status  |
-|-----------------------------------------------|---------|
-| Plugin-based architecture (`plugin_loader.py`)| ☐ Todo  |
-| Dark mode theme in GUI                        | ☐ Todo  |
-| Export report as PDF                          | ☐ Todo  |
-| Live terminal embed in UI                     | ☐ Todo  |
-| CLI interface for headless mode               | ☐ Todo  |
+This sequence follows a bottom-up approach where you first build the core infrastructure, then the networking utilities, followed by the penetration testing modules from basic to advanced. After that, you develop the reporting capabilities, then the user interface, and finally testing and documentation. This helps ensure that dependencies are available when needed and that you're building on solid foundations.

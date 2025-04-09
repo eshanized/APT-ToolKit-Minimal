@@ -1,0 +1,811 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ReportWindow</class>
+ <widget class="QWidget" name="ReportWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Report Generator</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>../assets/icons/report.png</normaloff>../assets/icons/report.png</iconset>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QSplitter" name="splitter">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <widget class="QWidget" name="leftWidget" native="true">
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QGroupBox" name="dataSourcesGroupBox">
+         <property name="title">
+          <string>Data Sources</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <widget class="QTabWidget" name="dataSourcesTabWidget">
+            <property name="currentIndex">
+             <number>0</number>
+            </property>
+            <widget class="QWidget" name="scanResultsTab">
+             <attribute name="title">
+              <string>Scan Results</string>
+             </attribute>
+             <layout class="QVBoxLayout" name="verticalLayout_4">
+              <item>
+               <widget class="QTableView" name="scanResultsTableView">
+                <property name="alternatingRowColors">
+                 <bool>true</bool>
+                </property>
+                <property name="selectionBehavior">
+                 <enum>QAbstractItemView::SelectRows</enum>
+                </property>
+                <property name="sortingEnabled">
+                 <bool>true</bool>
+                </property>
+                <attribute name="horizontalHeaderStretchLastSection">
+                 <bool>true</bool>
+                </attribute>
+               </widget>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout">
+                <item>
+                 <widget class="QPushButton" name="refreshScanResultsButton">
+                  <property name="text">
+                   <string>Refresh</string>
+                  </property>
+                  <property name="icon">
+                   <iconset>
+                    <normaloff>../assets/icons/refresh.png</normaloff>../assets/icons/refresh.png</iconset>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="importScanResultsButton">
+                  <property name="text">
+                   <string>Import</string>
+                  </property>
+                  <property name="icon">
+                   <iconset>
+                    <normaloff>../assets/icons/import.png</normaloff>../assets/icons/import.png</iconset>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="vulnerabilitiesTab">
+             <attribute name="title">
+              <string>Vulnerabilities</string>
+             </attribute>
+             <layout class="QVBoxLayout" name="verticalLayout_5">
+              <item>
+               <widget class="QTableView" name="vulnerabilitiesTableView">
+                <property name="alternatingRowColors">
+                 <bool>true</bool>
+                </property>
+                <property name="selectionBehavior">
+                 <enum>QAbstractItemView::SelectRows</enum>
+                </property>
+                <property name="sortingEnabled">
+                 <bool>true</bool>
+                </property>
+                <attribute name="horizontalHeaderStretchLastSection">
+                 <bool>true</bool>
+                </attribute>
+               </widget>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_2">
+                <item>
+                 <widget class="QLabel" name="filterLabel">
+                  <property name="text">
+                   <string>Filter:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLineEdit" name="filterLineEdit">
+                  <property name="placeholderText">
+                   <string>Filter vulnerabilities...</string>
+                  </property>
+                  <property name="clearButtonEnabled">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="severityLabel">
+                  <property name="text">
+                   <string>Severity:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QComboBox" name="severityComboBox">
+                  <item>
+                   <property name="text">
+                    <string>All</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Critical</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>High</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Medium</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Low</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Info</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="exploitsTab">
+             <attribute name="title">
+              <string>Exploits</string>
+             </attribute>
+             <layout class="QVBoxLayout" name="verticalLayout_6">
+              <item>
+               <widget class="QTableView" name="exploitsTableView">
+                <property name="alternatingRowColors">
+                 <bool>true</bool>
+                </property>
+                <property name="selectionBehavior">
+                 <enum>QAbstractItemView::SelectRows</enum>
+                </property>
+                <property name="sortingEnabled">
+                 <bool>true</bool>
+                </property>
+                <attribute name="horizontalHeaderStretchLastSection">
+                 <bool>true</bool>
+                </attribute>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="customDataTab">
+             <attribute name="title">
+              <string>Custom Data</string>
+             </attribute>
+             <layout class="QVBoxLayout" name="verticalLayout_7">
+              <item>
+               <widget class="QPlainTextEdit" name="customDataTextEdit">
+                <property name="placeholderText">
+                 <string>Enter custom data in JSON format...</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_3">
+                <item>
+                 <widget class="QPushButton" name="loadCustomDataButton">
+                  <property name="text">
+                   <string>Load Data</string>
+                  </property>
+                  <property name="icon">
+                   <iconset>
+                    <normaloff>../assets/icons/load.png</normaloff>../assets/icons/load.png</iconset>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="validateCustomDataButton">
+                  <property name="text">
+                   <string>Validate</string>
+                  </property>
+                  <property name="icon">
+                   <iconset>
+                    <normaloff>../assets/icons/validate.png</normaloff>../assets/icons/validate.png</iconset>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_2">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="reportsGroupBox">
+         <property name="title">
+          <string>Generated Reports</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_8">
+          <item>
+           <widget class="QTableView" name="reportsTableView">
+            <property name="alternatingRowColors">
+             <bool>true</bool>
+            </property>
+            <property name="selectionBehavior">
+             <enum>QAbstractItemView::SelectRows</enum>
+            </property>
+            <property name="sortingEnabled">
+             <bool>true</bool>
+            </property>
+            <attribute name="horizontalHeaderStretchLastSection">
+             <bool>true</bool>
+            </attribute>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_4">
+            <item>
+             <widget class="QPushButton" name="openReportButton">
+              <property name="text">
+               <string>Open</string>
+              </property>
+              <property name="icon">
+               <iconset>
+                <normaloff>../assets/icons/open.png</normaloff>../assets/icons/open.png</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="deleteReportButton">
+              <property name="text">
+               <string>Delete</string>
+              </property>
+              <property name="icon">
+               <iconset>
+                <normaloff>../assets/icons/delete.png</normaloff>../assets/icons/delete.png</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="exportReportButton">
+              <property name="text">
+               <string>Export</string>
+              </property>
+              <property name="icon">
+               <iconset>
+                <normaloff>../assets/icons/export.png</normaloff>../assets/icons/export.png</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_3">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="rightWidget" native="true">
+      <layout class="QVBoxLayout" name="verticalLayout_9">
+       <item>
+        <widget class="QGroupBox" name="reportConfigGroupBox">
+         <property name="title">
+          <string>Report Configuration</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="reportTitleLabel">
+            <property name="text">
+             <string>Report Title:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="reportTitleLineEdit">
+            <property name="placeholderText">
+             <string>Enter report title</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="reportTypeLabel">
+            <property name="text">
+             <string>Report Type:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QComboBox" name="reportTypeComboBox">
+            <item>
+             <property name="text">
+              <string>Executive Summary</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Technical Report</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Vulnerability Assessment</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Penetration Test</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Compliance Report</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Custom</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="formatLabel">
+            <property name="text">
+             <string>Format:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QComboBox" name="formatComboBox">
+            <item>
+             <property name="text">
+              <string>HTML</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>PDF</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>JSON</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>XML</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Markdown</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>CSV</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>YAML</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="templateLabel">
+            <property name="text">
+             <string>Template:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_5">
+            <item>
+             <widget class="QComboBox" name="templateComboBox">
+              <item>
+               <property name="text">
+                <string>Default</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Minimal</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Professional</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Detailed</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Custom</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="customTemplateButton">
+              <property name="text">
+               <string>Browse</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="companyLabel">
+            <property name="text">
+             <string>Company:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QLineEdit" name="companyLineEdit">
+            <property name="placeholderText">
+             <string>Enter company name</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QLabel" name="authorLabel">
+            <property name="text">
+             <string>Author:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1">
+           <widget class="QLineEdit" name="authorLineEdit">
+            <property name="placeholderText">
+             <string>Enter author name</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="0">
+           <widget class="QLabel" name="logoLabel">
+            <property name="text">
+             <string>Logo:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_6">
+            <item>
+             <widget class="QLineEdit" name="logoLineEdit">
+              <property name="placeholderText">
+               <string>Path to logo image</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="browseLogoButton">
+              <property name="text">
+               <string>Browse</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="sectionsGroupBox">
+         <property name="title">
+          <string>Report Sections</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_10">
+          <item>
+           <widget class="QListWidget" name="sectionsListWidget">
+            <property name="alternatingRowColors">
+             <bool>true</bool>
+            </property>
+            <item>
+             <property name="text">
+              <string>Executive Summary</string>
+             </property>
+             <property name="checkState">
+              <enum>Qt::Checked</enum>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Introduction</string>
+             </property>
+             <property name="checkState">
+              <enum>Qt::Checked</enum>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Methodology</string>
+             </property>
+             <property name="checkState">
+              <enum>Qt::Checked</enum>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Findings</string>
+             </property>
+             <property name="checkState">
+              <enum>Qt::Checked</enum>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Vulnerability Details</string>
+             </property>
+             <property name="checkState">
+              <enum>Qt::Checked</enum>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Recommendations</string>
+             </property>
+             <property name="checkState">
+              <enum>Qt::Checked</enum>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Conclusion</string>
+             </property>
+             <property name="checkState">
+              <enum>Qt::Checked</enum>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Appendices</string>
+             </property>
+             <property name="checkState">
+              <enum>Qt::Unchecked</enum>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_7">
+            <item>
+             <widget class="QPushButton" name="addSectionButton">
+              <property name="text">
+               <string>Add Section</string>
+              </property>
+              <property name="icon">
+               <iconset>
+                <normaloff>../assets/icons/add.png</normaloff>../assets/icons/add.png</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="removeSectionButton">
+              <property name="text">
+               <string>Remove Section</string>
+              </property>
+              <property name="icon">
+               <iconset>
+                <normaloff>../assets/icons/remove.png</normaloff>../assets/icons/remove.png</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="moveSectionUpButton">
+              <property name="text">
+               <string>Move Up</string>
+              </property>
+              <property name="icon">
+               <iconset>
+                <normaloff>../assets/icons/up.png</normaloff>../assets/icons/up.png</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="moveSectionDownButton">
+              <property name="text">
+               <string>Move Down</string>
+              </property>
+              <property name="icon">
+               <iconset>
+                <normaloff>../assets/icons/down.png</normaloff>../assets/icons/down.png</iconset>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="optionsGroupBox">
+         <property name="title">
+          <string>Options</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_11">
+          <item>
+           <widget class="QCheckBox" name="includeChartsCheckBox">
+            <property name="text">
+             <string>Include charts and graphs</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="includeRemediationCheckBox">
+            <property name="text">
+             <string>Include remediation advice</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="includeTechnicalDetailsCheckBox">
+            <property name="text">
+             <string>Include technical details</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="includeAppendicesCheckBox">
+            <property name="text">
+             <string>Include appendices</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="anonymizeDataCheckBox">
+            <property name="text">
+             <string>Anonymize sensitive data</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="encryptReportCheckBox">
+            <property name="text">
+             <string>Encrypt report</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_8">
+         <item>
+          <spacer name="horizontalSpacer_4">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="previewButton">
+           <property name="text">
+            <string>Preview</string>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>../assets/icons/preview.png</normaloff>../assets/icons/preview.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="generateButton">
+           <property name="minimumSize">
+            <size>
+             <width>120</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Generate Report</string>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>../assets/icons/generate.png</normaloff>../assets/icons/generate.png</iconset>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item>
+    <widget class="QProgressBar" name="progressBar">
+     <property name="value">
+      <number>0</number>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="statusLabel">
+     <property name="text">
+      <string>Ready</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

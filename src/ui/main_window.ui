@@ -1,0 +1,1291 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1200</width>
+    <height>800</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>800</width>
+    <height>600</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>APT Toolkit</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>../assets/icons/app_icon.png</normaloff>../assets/icons/app_icon.png</iconset>
+  </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QStackedWidget" name="stackedWidget">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="dashboardPage">
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <widget class="QLabel" name="dashboardTitle">
+          <property name="font">
+           <font>
+            <pointsize>16</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Dashboard</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QScrollArea" name="dashboardScrollArea">
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="dashboardScrollAreaContents">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>1198</width>
+             <height>702</height>
+            </rect>
+           </property>
+           <layout class="QGridLayout" name="gridLayout">
+            <item row="0" column="0">
+             <widget class="QFrame" name="reconWidget">
+              <property name="minimumSize">
+               <size>
+                <width>250</width>
+                <height>200</height>
+               </size>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::StyledPanel</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+              <property name="objectName">
+               <string>dashboardWidget</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_3">
+               <item>
+                <widget class="QLabel" name="reconTitle">
+                 <property name="objectName">
+                  <string>dashboardTitle</string>
+                 </property>
+                 <property name="text">
+                  <string>Reconnaissance</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="reconIcon">
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="pixmap">
+                  <pixmap>../assets/icons/recon.png</pixmap>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="reconButton">
+                 <property name="text">
+                  <string>Open Module</string>
+                 </property>
+                 <property name="objectName">
+                  <string>actionButton</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QFrame" name="networkMapperWidget">
+              <property name="minimumSize">
+               <size>
+                <width>250</width>
+                <height>200</height>
+               </size>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::StyledPanel</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+              <property name="objectName">
+               <string>dashboardWidget</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_4">
+               <item>
+                <widget class="QLabel" name="networkMapperTitle">
+                 <property name="objectName">
+                  <string>dashboardTitle</string>
+                 </property>
+                 <property name="text">
+                  <string>Network Mapper</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="networkMapperIcon">
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="pixmap">
+                  <pixmap>../assets/icons/network.png</pixmap>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="networkMapperButton">
+                 <property name="text">
+                  <string>Open Module</string>
+                 </property>
+                 <property name="objectName">
+                  <string>actionButton</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="0" column="2">
+             <widget class="QFrame" name="serviceEnumWidget">
+              <property name="minimumSize">
+               <size>
+                <width>250</width>
+                <height>200</height>
+               </size>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::StyledPanel</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+              <property name="objectName">
+               <string>dashboardWidget</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_5">
+               <item>
+                <widget class="QLabel" name="serviceEnumTitle">
+                 <property name="objectName">
+                  <string>dashboardTitle</string>
+                 </property>
+                 <property name="text">
+                  <string>Service Enumeration</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="serviceEnumIcon">
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="pixmap">
+                  <pixmap>../assets/icons/service.png</pixmap>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="serviceEnumButton">
+                 <property name="text">
+                  <string>Open Module</string>
+                 </property>
+                 <property name="objectName">
+                  <string>actionButton</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="0" column="3">
+             <widget class="QFrame" name="scanEngineWidget">
+              <property name="minimumSize">
+               <size>
+                <width>250</width>
+                <height>200</height>
+               </size>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::StyledPanel</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+              <property name="objectName">
+               <string>dashboardWidget</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_6">
+               <item>
+                <widget class="QLabel" name="scanEngineTitle">
+                 <property name="objectName">
+                  <string>dashboardTitle</string>
+                 </property>
+                 <property name="text">
+                  <string>Scan Engine</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="scanEngineIcon">
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="pixmap">
+                  <pixmap>../assets/icons/scan.png</pixmap>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="scanEngineButton">
+                 <property name="text">
+                  <string>Open Module</string>
+                 </property>
+                 <property name="objectName">
+                  <string>actionButton</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QFrame" name="webScannerWidget">
+              <property name="minimumSize">
+               <size>
+                <width>250</width>
+                <height>200</height>
+               </size>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::StyledPanel</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+              <property name="objectName">
+               <string>dashboardWidget</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_7">
+               <item>
+                <widget class="QLabel" name="webScannerTitle">
+                 <property name="objectName">
+                  <string>dashboardTitle</string>
+                 </property>
+                 <property name="text">
+                  <string>Web Scanner</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="webScannerIcon">
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="pixmap">
+                  <pixmap>../assets/icons/web.png</pixmap>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="webScannerButton">
+                 <property name="text">
+                  <string>Open Module</string>
+                 </property>
+                 <property name="objectName">
+                  <string>actionButton</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QFrame" name="vulnScannerWidget">
+              <property name="minimumSize">
+               <size>
+                <width>250</width>
+                <height>200</height>
+               </size>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::StyledPanel</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+              <property name="objectName">
+               <string>dashboardWidget</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_8">
+               <item>
+                <widget class="QLabel" name="vulnScannerTitle">
+                 <property name="objectName">
+                  <string>dashboardTitle</string>
+                 </property>
+                 <property name="text">
+                  <string>Vulnerability Scanner</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="vulnScannerIcon">
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="pixmap">
+                  <pixmap>../assets/icons/vulnerability.png</pixmap>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="vulnScannerButton">
+                 <property name="text">
+                  <string>Open Module</string>
+                 </property>
+                 <property name="objectName">
+                  <string>actionButton</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="1" column="2">
+             <widget class="QFrame" name="bruteForceWidget">
+              <property name="minimumSize">
+               <size>
+                <width>250</width>
+                <height>200</height>
+               </size>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::StyledPanel</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+              <property name="objectName">
+               <string>dashboardWidget</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_9">
+               <item>
+                <widget class="QLabel" name="bruteForceTitle">
+                 <property name="objectName">
+                  <string>dashboardTitle</string>
+                 </property>
+                 <property name="text">
+                  <string>Brute Force</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="bruteForceIcon">
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="pixmap">
+                  <pixmap>../assets/icons/brute_force.png</pixmap>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="bruteForceButton">
+                 <property name="text">
+                  <string>Open Module</string>
+                 </property>
+                 <property name="objectName">
+                  <string>actionButton</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="1" column="3">
+             <widget class="QFrame" name="authBypassWidget">
+              <property name="minimumSize">
+               <size>
+                <width>250</width>
+                <height>200</height>
+               </size>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::StyledPanel</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+              <property name="objectName">
+               <string>dashboardWidget</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_10">
+               <item>
+                <widget class="QLabel" name="authBypassTitle">
+                 <property name="objectName">
+                  <string>dashboardTitle</string>
+                 </property>
+                 <property name="text">
+                  <string>Auth Bypass</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="authBypassIcon">
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="pixmap">
+                  <pixmap>../assets/icons/auth_bypass.png</pixmap>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="authBypassButton">
+                 <property name="text">
+                  <string>Open Module</string>
+                 </property>
+                 <property name="objectName">
+                  <string>actionButton</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QFrame" name="payloadGenWidget">
+              <property name="minimumSize">
+               <size>
+                <width>250</width>
+                <height>200</height>
+               </size>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::StyledPanel</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+              <property name="objectName">
+               <string>dashboardWidget</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_11">
+               <item>
+                <widget class="QLabel" name="payloadGenTitle">
+                 <property name="objectName">
+                  <string>dashboardTitle</string>
+                 </property>
+                 <property name="text">
+                  <string>Payload Generator</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="payloadGenIcon">
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="pixmap">
+                  <pixmap>../assets/icons/payload.png</pixmap>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="payloadGenButton">
+                 <property name="text">
+                  <string>Open Module</string>
+                 </property>
+                 <property name="objectName">
+                  <string>actionButton</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QFrame" name="exploitExecWidget">
+              <property name="minimumSize">
+               <size>
+                <width>250</width>
+                <height>200</height>
+               </size>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::StyledPanel</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+              <property name="objectName">
+               <string>dashboardWidget</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_12">
+               <item>
+                <widget class="QLabel" name="exploitExecTitle">
+                 <property name="objectName">
+                  <string>dashboardTitle</string>
+                 </property>
+                 <property name="text">
+                  <string>Exploit Execution</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="exploitExecIcon">
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="pixmap">
+                  <pixmap>../assets/icons/exploit.png</pixmap>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="exploitExecButton">
+                 <property name="text">
+                  <string>Open Module</string>
+                 </property>
+                 <property name="objectName">
+                  <string>actionButton</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="2" column="2">
+             <widget class="QFrame" name="reportGenWidget">
+              <property name="minimumSize">
+               <size>
+                <width>250</width>
+                <height>200</height>
+               </size>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::StyledPanel</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+              <property name="objectName">
+               <string>dashboardWidget</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_13">
+               <item>
+                <widget class="QLabel" name="reportGenTitle">
+                 <property name="objectName">
+                  <string>dashboardTitle</string>
+                 </property>
+                 <property name="text">
+                  <string>Report Generator</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="reportGenIcon">
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="pixmap">
+                  <pixmap>../assets/icons/report.png</pixmap>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="reportGenButton">
+                 <property name="text">
+                  <string>Open Module</string>
+                 </property>
+                 <property name="objectName">
+                  <string>actionButton</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="2" column="3">
+             <widget class="QFrame" name="settingsWidget">
+              <property name="minimumSize">
+               <size>
+                <width>250</width>
+                <height>200</height>
+               </size>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::StyledPanel</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+              <property name="objectName">
+               <string>dashboardWidget</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_14">
+               <item>
+                <widget class="QLabel" name="settingsTitle">
+                 <property name="objectName">
+                  <string>dashboardTitle</string>
+                 </property>
+                 <property name="text">
+                  <string>Settings</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="settingsIcon">
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="pixmap">
+                  <pixmap>../assets/icons/settings.png</pixmap>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="settingsButton">
+                 <property name="text">
+                  <string>Open Settings</string>
+                 </property>
+                 <property name="objectName">
+                  <string>actionButton</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1200</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionNew_Project"/>
+    <addaction name="actionOpen_Project"/>
+    <addaction name="actionSave_Project"/>
+    <addaction name="actionSave_Project_As"/>
+    <addaction name="separator"/>
+    <addaction name="actionImport"/>
+    <addaction name="actionExport"/>
+    <addaction name="separator"/>
+    <addaction name="actionExit"/>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <addaction name="actionCut"/>
+    <addaction name="actionCopy"/>
+    <addaction name="actionPaste"/>
+    <addaction name="separator"/>
+    <addaction name="actionPreferences"/>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+    <addaction name="actionDashboard"/>
+    <addaction name="separator"/>
+    <addaction name="actionLogs"/>
+    <addaction name="actionTerminal"/>
+    <addaction name="separator"/>
+    <addaction name="actionFull_Screen"/>
+   </widget>
+   <widget class="QMenu" name="menuModules">
+    <property name="title">
+     <string>Modules</string>
+    </property>
+    <addaction name="actionReconnaissance"/>
+    <addaction name="actionNetwork_Mapper"/>
+    <addaction name="actionService_Enumeration"/>
+    <addaction name="actionScan_Engine"/>
+    <addaction name="actionWeb_Scanner"/>
+    <addaction name="actionVulnerability_Scanner"/>
+    <addaction name="actionBrute_Force"/>
+    <addaction name="actionAuth_Bypass"/>
+    <addaction name="actionPayload_Generator"/>
+    <addaction name="actionExploit_Execution"/>
+    <addaction name="actionReport_Generator"/>
+   </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+    <addaction name="actionWordlist_Manager"/>
+    <addaction name="actionPlugin_Manager"/>
+    <addaction name="separator"/>
+    <addaction name="actionScheduler"/>
+    <addaction name="actionTask_Manager"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionDocumentation"/>
+    <addaction name="actionTutorials"/>
+    <addaction name="separator"/>
+    <addaction name="actionCheck_for_Updates"/>
+    <addaction name="separator"/>
+    <addaction name="actionAbout"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuView"/>
+   <addaction name="menuModules"/>
+   <addaction name="menuTools"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionNew_Project"/>
+   <addaction name="actionOpen_Project"/>
+   <addaction name="actionSave_Project"/>
+   <addaction name="separator"/>
+   <addaction name="actionReconnaissance"/>
+   <addaction name="actionNetwork_Mapper"/>
+   <addaction name="actionService_Enumeration"/>
+   <addaction name="actionScan_Engine"/>
+   <addaction name="separator"/>
+   <addaction name="actionLogs"/>
+   <addaction name="actionTerminal"/>
+   <addaction name="separator"/>
+   <addaction name="actionSettings"/>
+  </widget>
+  <widget class="QDockWidget" name="logsDockWidget">
+   <property name="windowTitle">
+    <string>Logs</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>8</number>
+   </attribute>
+   <widget class="QWidget" name="logsDockWidgetContents">
+    <layout class="QVBoxLayout" name="verticalLayout_15">
+     <item>
+      <widget class="QTextEdit" name="logsTextEdit">
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+       <property name="objectName">
+        <string>logViewer</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QComboBox" name="logLevelComboBox">
+         <item>
+          <property name="text">
+           <string>DEBUG</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>INFO</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>WARNING</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>ERROR</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>CRITICAL</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="clearLogsButton">
+         <property name="text">
+          <string>Clear Logs</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="saveLogsButton">
+         <property name="text">
+          <string>Save Logs</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="terminalDockWidget">
+   <property name="windowTitle">
+    <string>Terminal</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>8</number>
+   </attribute>
+   <widget class="QWidget" name="terminalDockWidgetContents">
+    <layout class="QVBoxLayout" name="verticalLayout_16">
+     <item>
+      <widget class="QTextEdit" name="terminalTextEdit">
+       <property name="objectName">
+        <string>terminal</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QLineEdit" name="terminalCommandLineEdit">
+         <property name="placeholderText">
+          <string>Enter command...</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="terminalExecuteButton">
+         <property name="text">
+          <string>Execute</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="terminalClearButton">
+         <property name="text">
+          <string>Clear</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <action name="actionNew_Project">
+   <property name="icon">
+    <iconset>
+     <normaloff>../assets/icons/new.png</normaloff>../assets/icons/new.png</iconset>
+   </property>
+   <property name="text">
+    <string>New Project</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="actionOpen_Project">
+   <property name="icon">
+    <iconset>
+     <normaloff>../assets/icons/open.png</normaloff>../assets/icons/open.png</iconset>
+   </property>
+   <property name="text">
+    <string>Open Project</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionSave_Project">
+   <property name="icon">
+    <iconset>
+     <normaloff>../assets/icons/save.png</normaloff>../assets/icons/save.png</iconset>
+   </property>
+   <property name="text">
+    <string>Save Project</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionSave_Project_As">
+   <property name="text">
+    <string>Save Project As...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+S</string>
+   </property>
+  </action>
+  <action name="actionImport">
+   <property name="text">
+    <string>Import...</string>
+   </property>
+  </action>
+  <action name="actionExport">
+   <property name="text">
+    <string>Export...</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="actionCut">
+   <property name="text">
+    <string>Cut</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+X</string>
+   </property>
+  </action>
+  <action name="actionCopy">
+   <property name="text">
+    <string>Copy</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
+  </action>
+  <action name="actionPaste">
+   <property name="text">
+    <string>Paste</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+V</string>
+   </property>
+  </action>
+  <action name="actionPreferences">
+   <property name="text">
+    <string>Preferences</string>
+   </property>
+  </action>
+  <action name="actionDashboard">
+   <property name="icon">
+    <iconset>
+     <normaloff>../assets/icons/dashboard.png</normaloff>../assets/icons/dashboard.png</iconset>
+   </property>
+   <property name="text">
+    <string>Dashboard</string>
+   </property>
+  </action>
+  <action name="actionLogs">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>../assets/icons/logs.png</normaloff>../assets/icons/logs.png</iconset>
+   </property>
+   <property name="text">
+    <string>Logs</string>
+   </property>
+  </action>
+  <action name="actionTerminal">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>../assets/icons/terminal.png</normaloff>../assets/icons/terminal.png</iconset>
+   </property>
+   <property name="text">
+    <string>Terminal</string>
+   </property>
+  </action>
+  <action name="actionFull_Screen">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Full Screen</string>
+   </property>
+   <property name="shortcut">
+    <string>F11</string>
+   </property>
+  </action>
+  <action name="actionReconnaissance">
+   <property name="icon">
+    <iconset>
+     <normaloff>../assets/icons/recon.png</normaloff>../assets/icons/recon.png</iconset>
+   </property>
+   <property name="text">
+    <string>Reconnaissance</string>
+   </property>
+  </action>
+  <action name="actionNetwork_Mapper">
+   <property name="icon">
+    <iconset>
+     <normaloff>../assets/icons/network.png</normaloff>../assets/icons/network.png</iconset>
+   </property>
+   <property name="text">
+    <string>Network Mapper</string>
+   </property>
+  </action>
+  <action name="actionService_Enumeration">
+   <property name="icon">
+    <iconset>
+     <normaloff>../assets/icons/service.png</normaloff>../assets/icons/service.png</iconset>
+   </property>
+   <property name="text">
+    <string>Service Enumeration</string>
+   </property>
+  </action>
+  <action name="actionScan_Engine">
+   <property name="icon">
+    <iconset>
+     <normaloff>../assets/icons/scan.png</normaloff>../assets/icons/scan.png</iconset>
+   </property>
+   <property name="text">
+    <string>Scan Engine</string>
+   </property>
+  </action>
+  <action name="actionWeb_Scanner">
+   <property name="icon">
+    <iconset>
+     <normaloff>../assets/icons/web.png</normaloff>../assets/icons/web.png</iconset>
+   </property>
+   <property name="text">
+    <string>Web Scanner</string>
+   </property>
+  </action>
+  <action name="actionVulnerability_Scanner">
+   <property name="icon">
+    <iconset>
+     <normaloff>../assets/icons/vulnerability.png</normaloff>../assets/icons/vulnerability.png</iconset>
+   </property>
+   <property name="text">
+    <string>Vulnerability Scanner</string>
+   </property>
+  </action>
+  <action name="actionBrute_Force">
+   <property name="icon">
+    <iconset>
+     <normaloff>../assets/icons/brute_force.png</normaloff>../assets/icons/brute_force.png</iconset>
+   </property>
+   <property name="text">
+    <string>Brute Force</string>
+   </property>
+  </action>
+  <action name="actionAuth_Bypass">
+   <property name="icon">
+    <iconset>
+     <normaloff>../assets/icons/auth_bypass.png</normaloff>../assets/icons/auth_bypass.png</iconset>
+   </property>
+   <property name="text">
+    <string>Auth Bypass</string>
+   </property>
+  </action>
+  <action name="actionPayload_Generator">
+   <property name="icon">
+    <iconset>
+     <normaloff>../assets/icons/payload.png</normaloff>../assets/icons/payload.png</iconset>
+   </property>
+   <property name="text">
+    <string>Payload Generator</string>
+   </property>
+  </action>
+  <action name="actionExploit_Execution">
+   <property name="icon">
+    <iconset>
+     <normaloff>../assets/icons/exploit.png</normaloff>../assets/icons/exploit.png</iconset>
+   </property>
+   <property name="text">
+    <string>Exploit Execution</string>
+   </property>
+  </action>
+  <action name="actionReport_Generator">
+   <property name="icon">
+    <iconset>
+     <normaloff>../assets/icons/report.png</normaloff>../assets/icons/report.png</iconset>
+   </property>
+   <property name="text">
+    <string>Report Generator</string>
+   </property>
+  </action>
+  <action name="actionWordlist_Manager">
+   <property name="text">
+    <string>Wordlist Manager</string>
+   </property>
+  </action>
+  <action name="actionPlugin_Manager">
+   <property name="text">
+    <string>Plugin Manager</string>
+   </property>
+  </action>
+  <action name="actionScheduler">
+   <property name="text">
+    <string>Scheduler</string>
+   </property>
+  </action>
+  <action name="actionTask_Manager">
+   <property name="text">
+    <string>Task Manager</string>
+   </property>
+  </action>
+  <action name="actionDocumentation">
+   <property name="text">
+    <string>Documentation</string>
+   </property>
+   <property name="shortcut">
+    <string>F1</string>
+   </property>
+  </action>
+  <action name="actionTutorials">
+   <property name="text">
+    <string>Tutorials</string>
+   </property>
+  </action>
+  <action name="actionCheck_for_Updates">
+   <property name="text">
+    <string>Check for Updates</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
+  <action name="actionSettings">
+   <property name="icon">
+    <iconset>
+     <normaloff>../assets/icons/settings.png</normaloff>../assets/icons/settings.png</iconset>
+   </property>
+   <property name="text">
+    <string>Settings</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

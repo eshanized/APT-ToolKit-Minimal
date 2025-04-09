@@ -1,0 +1,1328 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SettingsDialog</class>
+ <widget class="QDialog" name="SettingsDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Settings</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>../assets/icons/settings.png</normaloff>../assets/icons/settings.png</iconset>
+  </property>
+  <property name="sizeGripEnabled">
+   <bool>true</bool>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="generalTab">
+      <attribute name="icon">
+       <iconset>
+        <normaloff>../assets/icons/general.png</normaloff>../assets/icons/general.png</iconset>
+      </attribute>
+      <attribute name="title">
+       <string>General</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QGroupBox" name="appearanceGroupBox">
+         <property name="title">
+          <string>Appearance</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="themeLabel">
+            <property name="text">
+             <string>Theme:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="themeComboBox">
+            <item>
+             <property name="text">
+              <string>Dark (Default)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Light</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>System</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="fontLabel">
+            <property name="text">
+             <string>Font:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout">
+            <item>
+             <widget class="QFontComboBox" name="fontComboBox"/>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="fontSizeSpinBox">
+              <property name="minimum">
+               <number>8</number>
+              </property>
+              <property name="maximum">
+               <number>24</number>
+              </property>
+              <property name="value">
+               <number>10</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="accentColorLabel">
+            <property name="text">
+             <string>Accent Color:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QPushButton" name="accentColorButton">
+            <property name="text">
+             <string>Select Color</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="behaviorGroupBox">
+         <property name="title">
+          <string>Behavior</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout_2">
+          <item row="0" column="0">
+           <widget class="QLabel" name="startupLabel">
+            <property name="text">
+             <string>On Startup:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="startupComboBox">
+            <item>
+             <property name="text">
+              <string>Show Dashboard</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Show Last Project</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Show New Project Dialog</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="languageLabel">
+            <property name="text">
+             <string>Language:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QComboBox" name="languageComboBox">
+            <item>
+             <property name="text">
+              <string>English</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Spanish</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>French</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>German</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Chinese</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Japanese</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Russian</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="autosaveLabel">
+            <property name="text">
+             <string>Autosave Interval (min):</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QSpinBox" name="autosaveSpinBox">
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>60</number>
+            </property>
+            <property name="value">
+             <number>5</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="updatesGroupBox">
+         <property name="title">
+          <string>Updates</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <widget class="QCheckBox" name="checkUpdatesCheckBox">
+            <property name="text">
+             <string>Check for updates on startup</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="autoUpdateCheckBox">
+            <property name="text">
+             <string>Automatically download and install updates</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <item>
+             <spacer name="horizontalSpacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="checkNowButton">
+              <property name="text">
+               <string>Check Now</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="networkTab">
+      <attribute name="icon">
+       <iconset>
+        <normaloff>../assets/icons/network.png</normaloff>../assets/icons/network.png</iconset>
+      </attribute>
+      <attribute name="title">
+       <string>Network</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <item>
+        <widget class="QGroupBox" name="proxyGroupBox">
+         <property name="title">
+          <string>Proxy Settings</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout_3">
+          <item row="0" column="0">
+           <widget class="QLabel" name="proxyTypeLabel">
+            <property name="text">
+             <string>Proxy Type:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="proxyTypeComboBox">
+            <item>
+             <property name="text">
+              <string>No Proxy</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>HTTP Proxy</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>SOCKS5 Proxy</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="proxyHostLabel">
+            <property name="text">
+             <string>Proxy Host:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="proxyHostLineEdit">
+            <property name="placeholderText">
+             <string>e.g., proxy.example.com</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="proxyPortLabel">
+            <property name="text">
+             <string>Proxy Port:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QSpinBox" name="proxyPortSpinBox">
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>65535</number>
+            </property>
+            <property name="value">
+             <number>8080</number>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="proxyAuthLabel">
+            <property name="text">
+             <string>Authentication:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QCheckBox" name="proxyAuthCheckBox">
+            <property name="text">
+             <string>Proxy requires authentication</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="proxyUsernameLabel">
+            <property name="text">
+             <string>Username:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QLineEdit" name="proxyUsernameLineEdit"/>
+          </item>
+          <item row="5" column="0">
+           <widget class="QLabel" name="proxyPasswordLabel">
+            <property name="text">
+             <string>Password:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1">
+           <widget class="QLineEdit" name="proxyPasswordLineEdit">
+            <property name="echoMode">
+             <enum>QLineEdit::Password</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="timeoutsGroupBox">
+         <property name="title">
+          <string>Timeouts and Limits</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout_4">
+          <item row="0" column="0">
+           <widget class="QLabel" name="connectionTimeoutLabel">
+            <property name="text">
+             <string>Connection Timeout (sec):</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QSpinBox" name="connectionTimeoutSpinBox">
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>300</number>
+            </property>
+            <property name="value">
+             <number>30</number>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="readTimeoutLabel">
+            <property name="text">
+             <string>Read Timeout (sec):</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QSpinBox" name="readTimeoutSpinBox">
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>300</number>
+            </property>
+            <property name="value">
+             <number>60</number>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="maxRetriesLabel">
+            <property name="text">
+             <string>Max Retries:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QSpinBox" name="maxRetriesSpinBox">
+            <property name="minimum">
+             <number>0</number>
+            </property>
+            <property name="maximum">
+             <number>10</number>
+            </property>
+            <property name="value">
+             <number>3</number>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="maxConcurrentLabel">
+            <property name="text">
+             <string>Max Concurrent Connections:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QSpinBox" name="maxConcurrentSpinBox">
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>100</number>
+            </property>
+            <property name="value">
+             <number>10</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="userAgentGroupBox">
+         <property name="title">
+          <string>User Agent</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <item>
+           <widget class="QRadioButton" name="defaultUserAgentRadioButton">
+            <property name="text">
+             <string>Use default user agent</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="customUserAgentRadioButton">
+            <property name="text">
+             <string>Use custom user agent</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="customUserAgentLineEdit">
+            <property name="placeholderText">
+             <string>Enter custom user agent string</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="randomUserAgentRadioButton">
+            <property name="text">
+             <string>Use random user agent for each request</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="scanTab">
+      <attribute name="icon">
+       <iconset>
+        <normaloff>../assets/icons/scan.png</normaloff>../assets/icons/scan.png</iconset>
+      </attribute>
+      <attribute name="title">
+       <string>Scanning</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_6">
+       <item>
+        <widget class="QGroupBox" name="scanOptionsGroupBox">
+         <property name="title">
+          <string>Scan Options</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout_5">
+          <item row="0" column="0">
+           <widget class="QLabel" name="defaultScanTypeLabel">
+            <property name="text">
+             <string>Default Scan Type:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="defaultScanTypeComboBox">
+            <item>
+             <property name="text">
+              <string>Quick Scan</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Full Scan</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Stealth Scan</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Comprehensive Scan</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="portRangeLabel">
+            <property name="text">
+             <string>Default Port Range:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="portRangeLineEdit">
+            <property name="text">
+             <string>1-1024</string>
+            </property>
+            <property name="placeholderText">
+             <string>e.g., 1-1024,3389,8080</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="threadCountLabel">
+            <property name="text">
+             <string>Thread Count:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QSpinBox" name="threadCountSpinBox">
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>100</number>
+            </property>
+            <property name="value">
+             <number>10</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="scanBehaviorGroupBox">
+         <property name="title">
+          <string>Scan Behavior</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_7">
+          <item>
+           <widget class="QCheckBox" name="aggressiveScanCheckBox">
+            <property name="text">
+             <string>Enable aggressive scanning</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="serviceDetectionCheckBox">
+            <property name="text">
+             <string>Enable service detection</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="osDetectionCheckBox">
+            <property name="text">
+             <string>Enable OS detection</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="scriptScanCheckBox">
+            <property name="text">
+             <string>Enable script scanning</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="tracerouteCheckBox">
+            <property name="text">
+             <string>Enable traceroute</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="reportingGroupBox">
+         <property name="title">
+          <string>Reporting</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_8">
+          <item>
+           <widget class="QCheckBox" name="autoReportCheckBox">
+            <property name="text">
+             <string>Automatically generate reports after scans</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <item>
+             <widget class="QLabel" name="reportFormatLabel">
+              <property name="text">
+               <string>Default Report Format:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="reportFormatComboBox">
+              <item>
+               <property name="text">
+                <string>HTML</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>PDF</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>JSON</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>XML</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>CSV</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Markdown</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="securityTab">
+      <attribute name="icon">
+       <iconset>
+        <normaloff>../assets/icons/security.png</normaloff>../assets/icons/security.png</iconset>
+      </attribute>
+      <attribute name="title">
+       <string>Security</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_9">
+       <item>
+        <widget class="QGroupBox" name="authenticationGroupBox">
+         <property name="title">
+          <string>Authentication</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_10">
+          <item>
+           <widget class="QCheckBox" name="requirePasswordCheckBox">
+            <property name="text">
+             <string>Require password on startup</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="lockTimeoutCheckBox">
+            <property name="text">
+             <string>Lock application after inactivity</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_4">
+            <item>
+             <widget class="QLabel" name="lockTimeoutLabel">
+              <property name="text">
+               <string>Inactivity Timeout (min):</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="lockTimeoutSpinBox">
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <number>60</number>
+              </property>
+              <property name="value">
+               <number>15</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_5">
+            <item>
+             <widget class="QPushButton" name="changePasswordButton">
+              <property name="text">
+               <string>Change Password</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_2">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="encryptionGroupBox">
+         <property name="title">
+          <string>Encryption</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_11">
+          <item>
+           <widget class="QCheckBox" name="encryptProjectsCheckBox">
+            <property name="text">
+             <string>Encrypt project files</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="encryptReportsCheckBox">
+            <property name="text">
+             <string>Encrypt generated reports</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_6">
+            <item>
+             <widget class="QLabel" name="encryptionAlgorithmLabel">
+              <property name="text">
+               <string>Encryption Algorithm:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="encryptionAlgorithmComboBox">
+              <item>
+               <property name="text">
+                <string>AES-256</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>AES-128</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>ChaCha20</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="privacyGroupBox">
+         <property name="title">
+          <string>Privacy</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_12">
+          <item>
+           <widget class="QCheckBox" name="anonymizeReportsCheckBox">
+            <property name="text">
+             <string>Anonymize data in reports</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="clearHistoryCheckBox">
+            <property name="text">
+             <string>Clear history on exit</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="telemetryCheckBox">
+            <property name="text">
+             <string>Send anonymous usage statistics</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_7">
+            <item>
+             <widget class="QPushButton" name="clearDataButton">
+              <property name="text">
+               <string>Clear All Data</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_3">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_4">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="advancedTab">
+      <attribute name="icon">
+       <iconset>
+        <normaloff>../assets/icons/advanced.png</normaloff>../assets/icons/advanced.png</iconset>
+      </attribute>
+      <attribute name="title">
+       <string>Advanced</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_13">
+       <item>
+        <widget class="QGroupBox" name="loggingGroupBox">
+         <property name="title">
+          <string>Logging</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout_6">
+          <item row="0" column="0">
+           <widget class="QLabel" name="logLevelLabel">
+            <property name="text">
+             <string>Log Level:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="logLevelComboBox">
+            <item>
+             <property name="text">
+              <string>DEBUG</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>INFO</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>WARNING</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ERROR</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>CRITICAL</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="logFileLabel">
+            <property name="text">
+             <string>Log File:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_8">
+            <item>
+             <widget class="QLineEdit" name="logFileLineEdit">
+              <property name="text">
+               <string>logs/apt_toolkit.log</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="browseLogFileButton">
+              <property name="text">
+               <string>Browse</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="logRotationLabel">
+            <property name="text">
+             <string>Log Rotation:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QComboBox" name="logRotationComboBox">
+            <item>
+             <property name="text">
+              <string>Daily</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Weekly</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Monthly</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>When size exceeds 10MB</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="performanceGroupBox">
+         <property name="title">
+          <string>Performance</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout_7">
+          <item row="0" column="0">
+           <widget class="QLabel" name="threadPoolSizeLabel">
+            <property name="text">
+             <string>Thread Pool Size:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QSpinBox" name="threadPoolSizeSpinBox">
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>64</number>
+            </property>
+            <property name="value">
+             <number>8</number>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="memoryLimitLabel">
+            <property name="text">
+             <string>Memory Limit (MB):</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QSpinBox" name="memoryLimitSpinBox">
+            <property name="minimum">
+             <number>256</number>
+            </property>
+            <property name="maximum">
+             <number>16384</number>
+            </property>
+            <property name="singleStep">
+             <number>256</number>
+            </property>
+            <property name="value">
+             <number>1024</number>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="cacheSizeLabel">
+            <property name="text">
+             <string>Cache Size (MB):</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QSpinBox" name="cacheSizeSpinBox">
+            <property name="minimum">
+             <number>64</number>
+            </property>
+            <property name="maximum">
+             <number>4096</number>
+            </property>
+            <property name="singleStep">
+             <number>64</number>
+            </property>
+            <property name="value">
+             <number>256</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="debuggingGroupBox">
+         <property name="title">
+          <string>Debugging</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_14">
+          <item>
+           <widget class="QCheckBox" name="debugModeCheckBox">
+            <property name="text">
+             <string>Enable debug mode</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="verboseOutputCheckBox">
+            <property name="text">
+             <string>Enable verbose output</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="developerModeCheckBox">
+            <property name="text">
+             <string>Enable developer mode</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_9">
+            <item>
+             <widget class="QPushButton" name="exportDebugInfoButton">
+              <property name="text">
+               <string>Export Debug Information</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_4">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_5">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::Reset</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>themeComboBox</tabstop>
+  <tabstop>fontComboBox</tabstop>
+  <tabstop>fontSizeSpinBox</tabstop>
+  <tabstop>accentColorButton</tabstop>
+  <tabstop>startupComboBox</tabstop>
+  <tabstop>languageComboBox</tabstop>
+  <tabstop>autosaveSpinBox</tabstop>
+  <tabstop>checkUpdatesCheckBox</tabstop>
+  <tabstop>autoUpdateCheckBox</tabstop>
+  <tabstop>checkNowButton</tabstop>
+  <tabstop>proxyTypeComboBox</tabstop>
+  <tabstop>proxyHostLineEdit</tabstop>
+  <tabstop>proxyPortSpinBox</tabstop>
+  <tabstop>proxyAuthCheckBox</tabstop>
+  <tabstop>proxyUsernameLineEdit</tabstop>
+  <tabstop>proxyPasswordLineEdit</tabstop>
+  <tabstop>connectionTimeoutSpinBox</tabstop>
+  <tabstop>readTimeoutSpinBox</tabstop>
+  <tabstop>maxRetriesSpinBox</tabstop>
+  <tabstop>maxConcurrentSpinBox</tabstop>
+  <tabstop>defaultUserAgentRadioButton</tabstop>
+  <tabstop>customUserAgentRadioButton</tabstop>
+  <tabstop>customUserAgentLineEdit</tabstop>
+  <tabstop>randomUserAgentRadioButton</tabstop>
+  <tabstop>defaultScanTypeComboBox</tabstop>
+  <tabstop>portRangeLineEdit</tabstop>
+  <tabstop>threadCountSpinBox</tabstop>
+  <tabstop>aggressiveScanCheckBox</tabstop>
+  <tabstop>serviceDetectionCheckBox</tabstop>
+  <tabstop>osDetectionCheckBox</tabstop>
+  <tabstop>scriptScanCheckBox</tabstop>
+  <tabstop>tracerouteCheckBox</tabstop>
+  <tabstop>autoReportCheckBox</tabstop>
+  <tabstop>reportFormatComboBox</tabstop>
+  <tabstop>requirePasswordCheckBox</tabstop>
+  <tabstop>lockTimeoutCheckBox</tabstop>
+  <tabstop>lockTimeoutSpinBox</tabstop>
+  <tabstop>changePasswordButton</tabstop>
+  <tabstop>encryptProjectsCheckBox</tabstop>
+  <tabstop>encryptReportsCheckBox</tabstop>
+  <tabstop>encryptionAlgorithmComboBox</tabstop>
+  <tabstop>anonymizeReportsCheckBox</tabstop>
+  <tabstop>clearHistoryCheckBox</tabstop>
+  <tabstop>telemetryCheckBox</tabstop>
+  <tabstop>clearDataButton</tabstop>
+  <tabstop>logLevelComboBox</tabstop>
+  <tabstop>logFileLineEdit</tabstop>
+  <tabstop>browseLogFileButton</tabstop>
+  <tabstop>logRotationComboBox</tabstop>
+  <tabstop>threadPoolSizeSpinBox</tabstop>
+  <tabstop>memoryLimitSpinBox</tabstop>
+  <tabstop>cacheSizeSpinBox</tabstop>
+  <tabstop>debugModeCheckBox</tabstop>
+  <tabstop>verboseOutputCheckBox</tabstop>
+  <tabstop>developerModeCheckBox</tabstop>
+  <tabstop>exportDebugInfoButton</tabstop>
+ </tabstops>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

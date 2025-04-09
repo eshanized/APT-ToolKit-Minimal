@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>LogsWindow</class>
+ <widget class="QWidget" name="LogsWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Logs</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>../assets/icons/logs.png</normaloff>../assets/icons/logs.png</iconset>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QWidget" name="toolbarWidget" native="true">
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="filterLabel">
+        <property name="text">
+         <string>Filter:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="filterLineEdit">
+        <property name="placeholderText">
+         <string>Enter filter text...</string>
+        </property>
+        <property name="clearButtonEnabled">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="levelLabel">
+        <property name="text">
+         <string>Level:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="levelComboBox">
+        <item>
+         <property name="text">
+          <string>All</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>DEBUG</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>INFO</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>WARNING</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>ERROR</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>CRITICAL</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="moduleLabel">
+        <property name="text">
+         <string>Module:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="moduleComboBox">
+        <item>
+         <property name="text">
+          <string>All</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Core</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Recon</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Network Mapper</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Service Enum</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Web Scanner</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Vuln Scanner</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Brute Force</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Auth Bypass</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Payload Gen</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Exploit Exec</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Report Gen</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="refreshButton">
+        <property name="text">
+         <string>Refresh</string>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normaloff>../assets/icons/refresh.png</normaloff>../assets/icons/refresh.png</iconset>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="clearButton">
+        <property name="text">
+         <string>Clear</string>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normaloff>../assets/icons/clear.png</normaloff>../assets/icons/clear.png</iconset>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="exportButton">
+        <property name="text">
+         <string>Export</string>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normaloff>../assets/icons/export.png</normaloff>../assets/icons/export.png</iconset>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QTableView" name="logsTableView">
+     <property name="alternatingRowColors">
+      <bool>true</bool>
+     </property>
+     <property name="selectionBehavior">
+      <enum>QAbstractItemView::SelectRows</enum>
+     </property>
+     <property name="sortingEnabled">
+      <bool>true</bool>
+     </property>
+     <attribute name="horizontalHeaderStretchLastSection">
+      <bool>true</bool>
+     </attribute>
+    </widget>
+   </item>
+   <item>
+    <widget class="QWidget" name="detailsWidget" native="true">
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="detailsLabel">
+        <property name="text">
+         <string>Log Details:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QTextEdit" name="detailsTextEdit">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QWidget" name="statusWidget" native="true">
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="statusLabel">
+        <property name="text">
+         <string>0 logs displayed</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="autoRefreshCheckBox">
+        <property name="text">
+         <string>Auto Refresh</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSpinBox" name="autoRefreshSpinBox">
+        <property name="suffix">
+         <string> sec</string>
+        </property>
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>60</number>
+        </property>
+        <property name="value">
+         <number>5</number>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

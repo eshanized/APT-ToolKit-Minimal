@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<!--
+Description: Default HTML report template for APT Toolkit security assessments
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ report.title }} | APT Toolkit Report</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #3498db;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --text-color: #333;
+            --border-color: #ddd;
+            
+            /* Severity colors */
+            --critical-color: #e74c3c;
+            --high-color: #e67e22;
+            --medium-color: #f1c40f;
+            --low-color: #2ecc71;
+            --info-color: #3498db;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: #f9f9f9;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            min-height: 100vh;
+        }
+        
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 5px;
+        }
+        
+        header h1 {
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .report-meta {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            font-size: 14px;
+            margin-top: 15px;
+        }
+        
+        .report-meta div {
+            margin-right: 20px;
+            margin-bottom: 5px;
+        }
+        
+        .report-meta strong {
+            font-weight: 600;
+        }
+        
+        .summary-section {
+            background-color: var(--light-color);
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 5px;
+            border-left: 5px solid var(--accent-color);
+        }
+        
+        .summary-section h2 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 22px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+        }
+        
+        .section-header {
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .section-header h2 {
+            color: var(--primary-color);
+            font-size: 24px;
+        }
+        
+        .section-summary {
+            margin-bottom: 20px;
+            font-style: italic;
+            color: #666;
+        }
+        
+        .subsection {
+            margin-bottom: 30px;
+            margin-left: 20px;
+        }
+        
+        .subsection-header {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .subsection-header h3 {
+            color: var(--secondary-color);
+            font-size: 20px;
+        }
+        
+        .subsection-summary {
+            margin-bottom: 15px;
+            font-style: italic;
+            color: #666;
+        }
+        
+        .item {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 5px solid var(--info-color);
+            background-color: #f9f9f9;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .item h4 {
+            margin-bottom: 10px;
+            font-size: 18px;
+            color: var(--dark-color);
+        }
+        
+        .item-description {
+            margin-bottom: 10px;
+        }
+        
+        .item-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #777;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed var(--border-color);
+        }
+        
+        /* Severity styles */
+        .severity {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+            text-transform: uppercase;
+        }
+        
+        .severity-CRITICAL {
+            background-color: var(--critical-color);
+        }
+        
+        .severity-HIGH {
+            background-color: var(--high-color);
+        }
+        
+        .severity-MEDIUM {
+            background-color: var(--medium-color);
+            color: #333;
+        }
+        
+        .severity-LOW {
+            background-color: var(--low-color);
+        }
+        
+        .severity-INFO {
+            background-color: var(--info-color);
+        }
+        
+        .item.severity-CRITICAL {
+            border-left-color: var(--critical-color);
+        }
+        
+        .item.severity-HIGH {
+            border-left-color: var(--high-color);
+        }
+        
+        .item.severity-MEDIUM {
+            border-left-color: var(--medium-color);
+        }
+        
+        .item.severity-LOW {
+            border-left-color: var(--low-color);
+        }
+        
+        .item.severity-INFO {
+            border-left-color: var(--info-color);
+        }
+        
+        .details-toggle {
+            cursor: pointer;
+            color: var(--accent-color);
+            font-size: 14px;
+            margin-top: 10px;
+            display: inline-block;
+        }
+        
+        .details-content {
+            display: none;
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 3px;
+            margin-top: 10px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            font-size: 13px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        footer {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+        }
+        
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            header {
+                padding: 15px;
+            }
+            
+            .report-meta {
+                flex-direction: column;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .subsection {
+                margin-left: 10px;
+            }
+        }
+        
+        /* Print styles */
+        @media print {
+            body {
+                background-color: white;
+            }
+            
+            .container {
+                max-width: 100%;
+                box-shadow: none;
+                padding: 0;
+            }
+            
+            .details-toggle {
+                display: none;
+            }
+            
+            .details-content {
+                display: block;
+                max-height: none;
+            }
+            
+            .item {
+                break-inside: avoid;
+            }
+            
+            .section, .subsection {
+                break-inside: avoid-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>{{ report.title }}</h1>
+            <div class="report-meta">
+                <div><strong>Target:</strong> {{ report.target }}</div>
+                <div><strong>Date:</strong> {{ report.creation_datetime }}</div>
+                <div><strong>Generated by:</strong> APT Toolkit</div>
+            </div>
+        </header>
+        
+        {% if report.summary %}
+        <div class="summary-section">
+            <h2>Executive Summary</h2>
+            <p>{{ report.summary }}</p>
+        </div>
+        {% endif %}
+        
+        {% for section in report.sections %}
+        <div class="section">
+            <div class="section-header">
+                <h2>{{ section.title }}</h2>
+            </div>
+            
+            {% if section.summary %}
+            <div class="section-summary">
+                <p>{{ section.summary }}</p>
+            </div>
+            {% endif %}
+            
+            {% for item in section.items %}
+            <div class="item severity-{{ item.severity }}">
+                <h4>{{ item.title }}</h4>
+                <div class="severity severity-{{ item.severity }}">{{ item.severity }}</div>
+                <div class="item-description">
+                    <p>{{ item.description }}</p>
+                </div>
+                
+                {% if item.details %}
+                <div class="details-toggle" onclick="toggleDetails(this)">Show Details</div>
+                <div class="details-content">{{ item.details|to_json }}</div>
+                {% endif %}
+                
+                <div class="item-meta">
+                    <div>Timestamp: {{ item.datetime }}</div>
+                </div>
+            </div>
+            {% endfor %}
+            
+            {% for subsection in section.subsections %}
+            <div class="subsection">
+                <div class="subsection-header">
+                    <h3>{{ subsection.title }}</h3>
+                </div>
+                
+                {% if subsection.summary %}
+                <div class="subsection-summary">
+                    <p>{{ subsection.summary }}</p>
+                </div>
+                {% endif %}
+                
+                {% for item in subsection.items %}
+                <div class="item severity-{{ item.severity }}">
+                    <h4>{{ item.title }}</h4>
+                    <div class="severity severity-{{ item.severity }}">{{ item.severity }}</div>
+                    <div class="item-description">
+                        <p>{{ item.description }}</p>
+                    </div>
+                    
+                    {% if item.details %}
+                    <div class="details-toggle" onclick="toggleDetails(this)">Show Details</div>
+                    <div class="details-content">{{ item.details|to_json }}</div>
+                    {% endif %}
+                    
+                    <div class="item-meta">
+                        <div>Timestamp: {{ item.datetime }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+        
+        <footer>
+            <p>Generated by APT Toolkit Report Generator | {{ report.creation_datetime }}</p>
+            <p>This report contains sensitive information and should be handled accordingly.</p>
+        </footer>
+    </div>
+    
+    <script>
+        function toggleDetails(element) {
+            const detailsContent = element.nextElementSibling;
+            if (detailsContent.style.display === 'block') {
+                detailsContent.style.display = 'none';
+                element.textContent = 'Show Details';
+            } else {
+                detailsContent.style.display = 'block';
+                element.textContent = 'Hide Details';
+            }
+        }
+        
+        // Initialize all detail sections as hidden
+        document.addEventListener('DOMContentLoaded', function() {
+            const detailsContents = document.querySelectorAll('.details-content');
+            detailsContents.forEach(function(content) {
+                content.style.display = 'none';
+            });
+        });
+    </script>
+</body>
+</html>

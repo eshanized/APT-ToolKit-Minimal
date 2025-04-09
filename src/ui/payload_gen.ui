@@ -1,0 +1,738 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>PayloadGenWindow</class>
+ <widget class="QWidget" name="PayloadGenWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Payload Generator</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>../assets/icons/payload_gen.png</normaloff>../assets/icons/payload_gen.png</iconset>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QSplitter" name="splitter">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <widget class="QWidget" name="leftWidget" native="true">
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QGroupBox" name="payloadTypeGroupBox">
+         <property name="title">
+          <string>Payload Type</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <widget class="QComboBox" name="payloadTypeComboBox">
+            <item>
+             <property name="text">
+              <string>Reverse Shell</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Bind Shell</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Web Shell</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Command Execution</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>SQL Injection</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Cross-Site Scripting (XSS)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>File Inclusion</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Command Injection</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Format String</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Buffer Overflow</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>CSRF Token</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>SSRF</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>XXE</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Custom</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item>
+           <widget class="QTreeView" name="payloadTreeView">
+            <property name="alternatingRowColors">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="collectionsGroupBox">
+         <property name="title">
+          <string>Collections</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_4">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout">
+            <item>
+             <widget class="QComboBox" name="collectionComboBox"/>
+            </item>
+            <item>
+             <widget class="QPushButton" name="newCollectionButton">
+              <property name="text">
+               <string>New</string>
+              </property>
+              <property name="icon">
+               <iconset>
+                <normaloff>../assets/icons/new.png</normaloff>../assets/icons/new.png</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="deleteCollectionButton">
+              <property name="text">
+               <string>Delete</string>
+              </property>
+              <property name="icon">
+               <iconset>
+                <normaloff>../assets/icons/delete.png</normaloff>../assets/icons/delete.png</iconset>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QListView" name="payloadListView">
+            <property name="alternatingRowColors">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <item>
+             <widget class="QPushButton" name="addPayloadButton">
+              <property name="text">
+               <string>Add</string>
+              </property>
+              <property name="icon">
+               <iconset>
+                <normaloff>../assets/icons/add.png</normaloff>../assets/icons/add.png</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="removePayloadButton">
+              <property name="text">
+               <string>Remove</string>
+              </property>
+              <property name="icon">
+               <iconset>
+                <normaloff>../assets/icons/remove.png</normaloff>../assets/icons/remove.png</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="importButton">
+              <property name="text">
+               <string>Import</string>
+              </property>
+              <property name="icon">
+               <iconset>
+                <normaloff>../assets/icons/import.png</normaloff>../assets/icons/import.png</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="exportButton">
+              <property name="text">
+               <string>Export</string>
+              </property>
+              <property name="icon">
+               <iconset>
+                <normaloff>../assets/icons/export.png</normaloff>../assets/icons/export.png</iconset>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="rightWidget" native="true">
+      <layout class="QVBoxLayout" name="verticalLayout_5">
+       <item>
+        <widget class="QTabWidget" name="configTabWidget">
+         <property name="currentIndex">
+          <number>0</number>
+         </property>
+         <widget class="QWidget" name="parametersTab">
+          <attribute name="title">
+           <string>Parameters</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_6">
+           <item>
+            <widget class="QScrollArea" name="parametersScrollArea">
+             <property name="widgetResizable">
+              <bool>true</bool>
+             </property>
+             <widget class="QWidget" name="scrollAreaWidgetContents">
+              <property name="geometry">
+               <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>359</width>
+                <height>196</height>
+               </rect>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_7">
+               <item>
+                <widget class="QWidget" name="parametersWidget" native="true">
+                 <layout class="QFormLayout" name="formLayout">
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="platformLabel">
+                    <property name="text">
+                     <string>Platform:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <widget class="QComboBox" name="platformComboBox">
+                    <item>
+                     <property name="text">
+                      <string>Windows</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Linux</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>macOS</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Android</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>iOS</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Web</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Multi-platform</string>
+                     </property>
+                    </item>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="languageLabel">
+                    <property name="text">
+                     <string>Language:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QComboBox" name="languageComboBox">
+                    <item>
+                     <property name="text">
+                      <string>Bash</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>PowerShell</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Python</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>PHP</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>JavaScript</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Ruby</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Perl</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>C</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>C++</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>C#</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Java</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Go</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Rust</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>ASP</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>JSP</string>
+                     </property>
+                    </item>
+                   </widget>
+                  </item>
+                  <item row="2" column="0">
+                   <widget class="QLabel" name="formatLabel">
+                    <property name="text">
+                     <string>Format:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="1">
+                   <widget class="QComboBox" name="formatComboBox">
+                    <item>
+                     <property name="text">
+                      <string>Raw</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Base64</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Hex</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>URL Encoded</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>HTML Entities</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Unicode Escape</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Octal</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Binary</string>
+                     </property>
+                    </item>
+                   </widget>
+                  </item>
+                  <item row="3" column="0">
+                   <widget class="QLabel" name="ipAddressLabel">
+                    <property name="text">
+                     <string>IP Address:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="1">
+                   <widget class="QLineEdit" name="ipAddressLineEdit">
+                    <property name="placeholderText">
+                     <string>Enter IP address (for reverse shells)</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="0">
+                   <widget class="QLabel" name="portLabel">
+                    <property name="text">
+                     <string>Port:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="1">
+                   <widget class="QSpinBox" name="portSpinBox">
+                    <property name="minimum">
+                     <number>1</number>
+                    </property>
+                    <property name="maximum">
+                     <number>65535</number>
+                    </property>
+                    <property name="value">
+                     <number>4444</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="0">
+                   <widget class="QLabel" name="commandLabel">
+                    <property name="text">
+                     <string>Command:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="1">
+                   <widget class="QLineEdit" name="commandLineEdit">
+                    <property name="placeholderText">
+                     <string>Enter command to execute</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="6" column="0">
+                   <widget class="QLabel" name="obfuscationLabel">
+                    <property name="text">
+                     <string>Obfuscation:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="6" column="1">
+                   <widget class="QComboBox" name="obfuscationComboBox">
+                    <item>
+                     <property name="text">
+                      <string>None</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Basic</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Medium</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Advanced</string>
+                     </property>
+                    </item>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <spacer name="verticalSpacer">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>40</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
+             </widget>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="advancedTab">
+          <attribute name="title">
+           <string>Advanced</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_8">
+           <item>
+            <widget class="QTableWidget" name="advancedTableWidget">
+             <property name="alternatingRowColors">
+              <bool>true</bool>
+             </property>
+             <column>
+              <property name="text">
+               <string>Parameter</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>Value</string>
+              </property>
+             </column>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_3">
+             <item>
+              <widget class="QPushButton" name="addParameterButton">
+               <property name="text">
+                <string>Add Parameter</string>
+               </property>
+               <property name="icon">
+                <iconset>
+                 <normaloff>../assets/icons/add.png</normaloff>../assets/icons/add.png</iconset>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="removeParameterButton">
+               <property name="text">
+                <string>Remove Parameter</string>
+               </property>
+               <property name="icon">
+                <iconset>
+                 <normaloff>../assets/icons/remove.png</normaloff>../assets/icons/remove.png</iconset>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="templateTab">
+          <attribute name="title">
+           <string>Template</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_9">
+           <item>
+            <widget class="QPlainTextEdit" name="templateTextEdit">
+             <property name="font">
+              <font>
+               <family>Consolas</family>
+              </font>
+             </property>
+             <property name="lineWrapMode">
+              <enum>QPlainTextEdit::NoWrap</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_4">
+             <item>
+              <widget class="QPushButton" name="saveTemplateButton">
+               <property name="text">
+                <string>Save Template</string>
+               </property>
+               <property name="icon">
+                <iconset>
+                 <normaloff>../assets/icons/save.png</normaloff>../assets/icons/save.png</iconset>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="loadTemplateButton">
+               <property name="text">
+                <string>Load Template</string>
+               </property>
+               <property name="icon">
+                <iconset>
+                 <normaloff>../assets/icons/load.png</normaloff>../assets/icons/load.png</iconset>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="resetTemplateButton">
+               <property name="text">
+                <string>Reset Template</string>
+               </property>
+               <property name="icon">
+                <iconset>
+                 <normaloff>../assets/icons/reset.png</normaloff>../assets/icons/reset.png</iconset>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="outputGroupBox">
+         <property name="title">
+          <string>Output</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_10">
+          <item>
+           <widget class="QPlainTextEdit" name="outputTextEdit">
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+            <property name="font">
+             <font>
+              <family>Consolas</family>
+             </font>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_5">
+            <item>
+             <widget class="QPushButton" name="generateButton">
+              <property name="minimumSize">
+               <size>
+                <width>120</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>Generate</string>
+              </property>
+              <property name="icon">
+               <iconset>
+                <normaloff>../assets/icons/generate.png</normaloff>../assets/icons/generate.png</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="copyButton">
+              <property name="text">
+               <string>Copy</string>
+              </property>
+              <property name="icon">
+               <iconset>
+                <normaloff>../assets/icons/copy.png</normaloff>../assets/icons/copy.png</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="saveButton">
+              <property name="text">
+               <string>Save</string>
+              </property>
+              <property name="icon">
+               <iconset>
+                <normaloff>../assets/icons/save.png</normaloff>../assets/icons/save.png</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="usePayloadButton">
+              <property name="text">
+               <string>Use Payload</string>
+              </property>
+              <property name="icon">
+               <iconset>
+                <normaloff>../assets/icons/use.png</normaloff>../assets/icons/use.png</iconset>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="statusLabel">
+     <property name="text">
+      <string>Ready</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
