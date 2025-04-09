@@ -395,7 +395,32 @@
         </widget>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_5">
+        <layout class="QHBoxLayout" name="actionsLayout">
+         <item>
+          <widget class="QPushButton" name="startButton">
+           <property name="text">
+            <string>Start Recon</string>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>../assets/icons/play.png</normaloff>../assets/icons/play.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="stopButton">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Stop</string>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>../assets/icons/stop.png</normaloff>../assets/icons/stop.png</iconset>
+           </property>
+          </widget>
+         </item>
          <item>
           <spacer name="horizontalSpacer">
            <property name="orientation">
@@ -410,50 +435,7 @@
           </spacer>
          </item>
          <item>
-          <widget class="QPushButton" name="startButton">
-           <property name="minimumSize">
-            <size>
-             <width>120</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Start Recon</string>
-           </property>
-           <property name="icon">
-            <iconset>
-             <normaloff>../assets/icons/start.png</normaloff>../assets/icons/start.png</iconset>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="stopButton">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>120</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Stop</string>
-           </property>
-           <property name="icon">
-            <iconset>
-             <normaloff>../assets/icons/stop.png</normaloff>../assets/icons/stop.png</iconset>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="QPushButton" name="saveButton">
-           <property name="minimumSize">
-            <size>
-             <width>120</width>
-             <height>0</height>
-            </size>
-           </property>
            <property name="text">
             <string>Save Results</string>
            </property>
@@ -463,21 +445,43 @@
            </property>
           </widget>
          </item>
+         <item>
+          <widget class="QPushButton" name="exportButton">
+           <property name="text">
+            <string>Export</string>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>../assets/icons/export.png</normaloff>../assets/icons/export.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="clearButton">
+           <property name="text">
+            <string>Clear</string>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>../assets/icons/clear.png</normaloff>../assets/icons/clear.png</iconset>
+           </property>
+          </widget>
+         </item>
         </layout>
        </item>
       </layout>
      </widget>
-     <widget class="QTabWidget" name="resultsTabWidget">
+     <widget class="QTabWidget" name="mainTabWidget">
       <property name="currentIndex">
        <number>0</number>
       </property>
-      <widget class="QWidget" name="summaryTab">
+      <widget class="QWidget" name="outputTab">
        <attribute name="title">
-        <string>Summary</string>
+        <string>Output</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_6">
         <item>
-         <widget class="QTextEdit" name="summaryTextEdit">
+         <widget class="QTextEdit" name="outputTextEdit">
           <property name="readOnly">
            <bool>true</bool>
           </property>
@@ -485,48 +489,38 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="dnsTab">
+      <widget class="QWidget" name="hostsTab">
        <attribute name="title">
-        <string>DNS Records</string>
+        <string>Hosts</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_7">
         <item>
-         <widget class="QTableView" name="dnsTableView">
-          <property name="alternatingRowColors">
-           <bool>true</bool>
-          </property>
-          <property name="selectionBehavior">
-           <enum>QAbstractItemView::SelectRows</enum>
-          </property>
-          <property name="sortingEnabled">
-           <bool>true</bool>
-          </property>
-          <attribute name="horizontalHeaderStretchLastSection">
-           <bool>true</bool>
-          </attribute>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="subdomainsTab">
-       <attribute name="title">
-        <string>Subdomains</string>
-       </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_8">
-        <item>
-         <widget class="QTableView" name="subdomainsTableView">
-          <property name="alternatingRowColors">
-           <bool>true</bool>
-          </property>
-          <property name="selectionBehavior">
-           <enum>QAbstractItemView::SelectRows</enum>
-          </property>
-          <property name="sortingEnabled">
-           <bool>true</bool>
-          </property>
-          <attribute name="horizontalHeaderStretchLastSection">
-           <bool>true</bool>
-          </attribute>
+         <widget class="QTableWidget" name="hostsTableWidget">
+          <column>
+           <property name="text">
+            <string>IP Address</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Hostname</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Status</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>OS</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>MAC Address</string>
+           </property>
+          </column>
          </widget>
         </item>
        </layout>
@@ -535,40 +529,39 @@
        <attribute name="title">
         <string>Ports</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_9">
+       <layout class="QVBoxLayout" name="verticalLayout_8">
         <item>
-         <widget class="QTableView" name="portsTableView">
-          <property name="alternatingRowColors">
-           <bool>true</bool>
-          </property>
-          <property name="selectionBehavior">
-           <enum>QAbstractItemView::SelectRows</enum>
-          </property>
-          <property name="sortingEnabled">
-           <bool>true</bool>
-          </property>
-          <attribute name="horizontalHeaderStretchLastSection">
-           <bool>true</bool>
-          </attribute>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="whoisTab">
-       <attribute name="title">
-        <string>WHOIS</string>
-       </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_10">
-        <item>
-         <widget class="QTextEdit" name="whoisTextEdit">
-          <property name="readOnly">
-           <bool>true</bool>
-          </property>
-          <property name="font">
-           <font>
-            <family>Consolas</family>
-           </font>
-          </property>
+         <widget class="QTableWidget" name="portsTableWidget">
+          <column>
+           <property name="text">
+            <string>Host</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Port</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Protocol</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>State</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Service</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Version</string>
+           </property>
+          </column>
          </widget>
         </item>
        </layout>
@@ -577,39 +570,139 @@
        <attribute name="title">
         <string>Services</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_11">
+       <layout class="QVBoxLayout" name="verticalLayout_9">
         <item>
-         <widget class="QTableView" name="servicesTableView">
-          <property name="alternatingRowColors">
-           <bool>true</bool>
-          </property>
-          <property name="selectionBehavior">
-           <enum>QAbstractItemView::SelectRows</enum>
-          </property>
-          <property name="sortingEnabled">
-           <bool>true</bool>
-          </property>
-          <attribute name="horizontalHeaderStretchLastSection">
-           <bool>true</bool>
-          </attribute>
+         <widget class="QTableWidget" name="servicesTableWidget">
+          <column>
+           <property name="text">
+            <string>Host</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Port</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Service</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Version</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Banner</string>
+           </property>
+          </column>
          </widget>
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="rawTab">
+      <widget class="QWidget" name="domainsTab">
        <attribute name="title">
-        <string>Raw Output</string>
+        <string>Domains</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_10">
+        <item>
+         <widget class="QTableWidget" name="domainsTableWidget">
+          <column>
+           <property name="text">
+            <string>Domain</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Registrar</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Created</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Expires</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="dnsTab">
+       <attribute name="title">
+        <string>DNS Records</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_11">
+        <item>
+         <widget class="QTableWidget" name="dnsRecordsTableWidget">
+          <column>
+           <property name="text">
+            <string>Hostname</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Type</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Value</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>TTL</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="subdomainsTab">
+       <attribute name="title">
+        <string>Subdomains</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_12">
         <item>
-         <widget class="QTextEdit" name="rawTextEdit">
+         <widget class="QListWidget" name="subdomainsListWidget"/>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="whoisTab">
+       <attribute name="title">
+        <string>WHOIS</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_13">
+        <item>
+         <widget class="QTextEdit" name="whoisTextEdit">
           <property name="readOnly">
            <bool>true</bool>
           </property>
-          <property name="font">
-           <font>
-            <family>Consolas</family>
-           </font>
+          <property name="fontFamily">
+           <string>Monospace</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="summaryTab">
+       <attribute name="title">
+        <string>Summary</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_14">
+        <item>
+         <widget class="QTextEdit" name="summaryTextEdit">
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+          <property name="fontFamily">
+           <string>Monospace</string>
           </property>
          </widget>
         </item>

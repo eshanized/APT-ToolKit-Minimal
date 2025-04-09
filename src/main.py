@@ -11,6 +11,7 @@ from modules import recon
 from utils.logger import get_logger
 from src.modules.network_mapper import NetworkMapper, NetworkNode, NetworkLink, NetworkMapResult
 from src.utils.check_dependencies import check_nmap_installation, get_nmap_installation_instructions
+from src.ui.recon_viz import ReconVizTab
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -32,6 +33,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.terminalPage = uic.loadUi("src/ui/terminal.ui")
         self.settingsPage = uic.loadUi("src/ui/settings.ui")
         self.reportPage = uic.loadUi("src/ui/report.ui")
+        
+        # Create the recon visualization tab
+        self.reconVizTab = ReconVizTab()
+        
+        # Add visualization tab to recon page
+        if hasattr(self.reconPage, 'mainTabWidget'):
+            self.reconPage.mainTabWidget.addTab(self.reconVizTab, "Visualization")
         
         # Add pages to the stacked widget
         self.stackedWidget = self.ui.findChild(QtWidgets.QStackedWidget, "stackedWidget")
@@ -220,173 +228,81 @@ class MainWindow(QtWidgets.QMainWindow):
         pass
         
     def start_recon(self):
-        """Start reconnaissance on target"""
+        """Start the reconnaissance process"""
+        # Get target from UI
         target = self.reconPage.targetLineEdit.text().strip()
         if not target:
-            self.append_recon_output("[!] Please enter a valid target.")
+            self.append_recon_output("Error: Please enter a target.")
             return
-
-        self.append_recon_output(f"[*] Running reconnaissance on: {target}")
-        self.spinner.setVisible(True)
-        self.spinner.movie().start()
         
-        # Update UI state
-        self.reconPage.startButton.setEnabled(False)
-        self.reconPage.stopButton.setEnabled(True)
-
-        # Run recon in separate thread
-        self.recon_thread = QtCore.QThread()
+        # Get recon options from UI
+        dns_enum = self.reconPage.dnsEnumCheckBox.isChecked()
+        whois = self.reconPage.whoisCheckBox.isChecked()
+        subdomain_enum = self.reconPage.subdomainEnumCheckBox.isChecked()
+        reverse_ip = self.reconPage.reverseIPCheckBox.isChecked()
+        port_scan = self.reconPage.portScanCheckBox.isChecked()
+        service_detection = self.reconPage.serviceDetectionCheckBox.isChecked()
+        os_detection = self.reconPage.osDetectionCheckBox.isChecked()
+        
+        # Get port range if port scanning is enabled
+        ports = []
+        if port_scan:
+            port_range = self.reconPage.portRangeLineEdit.text().strip()
+            if port_range:
+                try:
+                    for part in port_range.split(','):
+                        if '-' in part:
+                            start, end = part.split('-')
+                            ports.extend(range(int(start), int(end) + 1))
+                        else:
+                            ports.append(int(part))
+                except ValueError:
+                    self.append_recon_output("Error: Invalid port range format. Using default ports.")
+                    ports = []
+        
+        # Create recon worker thread
         self.recon_worker = ReconWorker(target, self.logger)
-        self.recon_worker.moveToThread(self.recon_thread)
-
         self.recon_worker.output_signal.connect(self.append_recon_output)
         self.recon_worker.finished_signal.connect(self._on_recon_finished)
         
+        # Disable start button and enable stop button
+        self.reconPage.startButton.setEnabled(False)
+        self.reconPage.stopButton.setEnabled(True)
+        
+        # Clear the output text
+        self.reconPage.outputTextEdit.clear()
+        
+        # Start the worker thread
+        self.recon_thread = QtCore.QThread()
+        self.recon_worker.moveToThread(self.recon_thread)
         self.recon_thread.started.connect(self.recon_worker.run)
         self.recon_thread.start()
         
     def _on_recon_finished(self):
-        """Handle recon completion"""
-        # Update UI
-        self.spinner.setVisible(False)
+        """Handle completion of reconnaissance"""
+        # Stop the worker thread
+        self.recon_thread.quit()
+        self.recon_thread.wait()
+        
+        # Enable start button and disable stop button
         self.reconPage.startButton.setEnabled(True)
         self.reconPage.stopButton.setEnabled(False)
         
-        # Process the recon results to populate tabs
-        if hasattr(self, 'recon_worker') and hasattr(self.recon_worker, 'result') and self.recon_worker.result:
-            result = self.recon_worker.result
-        else:
-            # If no results available, create sample data for demo purposes
-            self.append_recon_output("[!] No detailed results available. Showing sample data for demonstration.")
-            result = self._create_sample_recon_result()
+        # Display results
+        self.append_recon_output("\nReconnaissance completed.")
         
-        # Update Domains tab
-        if result.domains and hasattr(self.reconPage, 'domainsTableWidget'):
-            self.reconPage.domainsTableWidget.setRowCount(0)  # Clear table
-            for domain in result.domains:
-                row = self.reconPage.domainsTableWidget.rowCount()
-                self.reconPage.domainsTableWidget.insertRow(row)
-                self.reconPage.domainsTableWidget.setItem(row, 0, QtWidgets.QTableWidgetItem(domain.domain))
-                self.reconPage.domainsTableWidget.setItem(row, 1, QtWidgets.QTableWidgetItem(domain.registrar))
-                self.reconPage.domainsTableWidget.setItem(row, 2, QtWidgets.QTableWidgetItem(domain.creation_date))
-                self.reconPage.domainsTableWidget.setItem(row, 3, QtWidgets.QTableWidgetItem(domain.expiration_date))
+        # Create sample result for testing visualization
+        result = self._create_sample_recon_result()
         
-        # Update DNS Records tab
-        if result.domains and hasattr(self.reconPage, 'dnsRecordsTableWidget'):
-            self.reconPage.dnsRecordsTableWidget.setRowCount(0)  # Clear table
-            for domain in result.domains:
-                for record in domain.dns_records:
-                    row = self.reconPage.dnsRecordsTableWidget.rowCount()
-                    self.reconPage.dnsRecordsTableWidget.insertRow(row)
-                    self.reconPage.dnsRecordsTableWidget.setItem(row, 0, QtWidgets.QTableWidgetItem(record.hostname))
-                    self.reconPage.dnsRecordsTableWidget.setItem(row, 1, QtWidgets.QTableWidgetItem(record.record_type))
-                    self.reconPage.dnsRecordsTableWidget.setItem(row, 2, QtWidgets.QTableWidgetItem(record.value))
-                    self.reconPage.dnsRecordsTableWidget.setItem(row, 3, QtWidgets.QTableWidgetItem(str(record.ttl)))
+        # Load the recon results into the visualization tab
+        self.reconVizTab.load_data(result.to_dict())
         
-        # Update Subdomains tab
-        if result.domains and hasattr(self.reconPage, 'subdomainsListWidget'):
-            self.reconPage.subdomainsListWidget.clear()  # Clear list
-            for domain in result.domains:
-                for subdomain in domain.subdomains:
-                    self.reconPage.subdomainsListWidget.addItem(subdomain)
-        
-        # Update Hosts tab
-        if result.hosts and hasattr(self.reconPage, 'hostsTableWidget'):
-            self.reconPage.hostsTableWidget.setRowCount(0)  # Clear table
-            for host in result.hosts:
-                row = self.reconPage.hostsTableWidget.rowCount()
-                self.reconPage.hostsTableWidget.insertRow(row)
-                self.reconPage.hostsTableWidget.setItem(row, 0, QtWidgets.QTableWidgetItem(host.ip_address))
-                self.reconPage.hostsTableWidget.setItem(row, 1, QtWidgets.QTableWidgetItem(host.hostname))
-                self.reconPage.hostsTableWidget.setItem(row, 2, QtWidgets.QTableWidgetItem(host.status))
-                self.reconPage.hostsTableWidget.setItem(row, 3, QtWidgets.QTableWidgetItem(host.os_info))
-                self.reconPage.hostsTableWidget.setItem(row, 4, QtWidgets.QTableWidgetItem(host.mac_address))
-        
-        # Update Ports tab
-        if result.hosts and hasattr(self.reconPage, 'portsTableWidget'):
-            self.reconPage.portsTableWidget.setRowCount(0)  # Clear table
-            for host in result.hosts:
-                for port in host.open_ports:
-                    row = self.reconPage.portsTableWidget.rowCount()
-                    self.reconPage.portsTableWidget.insertRow(row)
-                    self.reconPage.portsTableWidget.setItem(row, 0, QtWidgets.QTableWidgetItem(host.ip_address))
-                    self.reconPage.portsTableWidget.setItem(row, 1, QtWidgets.QTableWidgetItem(str(port.port)))
-                    self.reconPage.portsTableWidget.setItem(row, 2, QtWidgets.QTableWidgetItem(port.protocol))
-                    self.reconPage.portsTableWidget.setItem(row, 3, QtWidgets.QTableWidgetItem(port.state))
-                    self.reconPage.portsTableWidget.setItem(row, 4, QtWidgets.QTableWidgetItem(port.service))
-                    self.reconPage.portsTableWidget.setItem(row, 5, QtWidgets.QTableWidgetItem(port.version))
-        
-        # Update Services tab
-        if result.hosts and hasattr(self.reconPage, 'servicesTableWidget'):
-            self.reconPage.servicesTableWidget.setRowCount(0)  # Clear table
-            for host in result.hosts:
-                for port in host.open_ports:
-                    if port.service:  # Only add if service is detected
-                        row = self.reconPage.servicesTableWidget.rowCount()
-                        self.reconPage.servicesTableWidget.insertRow(row)
-                        self.reconPage.servicesTableWidget.setItem(row, 0, QtWidgets.QTableWidgetItem(host.ip_address))
-                        self.reconPage.servicesTableWidget.setItem(row, 1, QtWidgets.QTableWidgetItem(str(port.port)))
-                        self.reconPage.servicesTableWidget.setItem(row, 2, QtWidgets.QTableWidgetItem(port.service))
-                        self.reconPage.servicesTableWidget.setItem(row, 3, QtWidgets.QTableWidgetItem(port.version))
-                        self.reconPage.servicesTableWidget.setItem(row, 4, QtWidgets.QTableWidgetItem(port.banner[:100] if port.banner else ""))
-        
-        # Update WHOIS tab
-        if result.domains and hasattr(self.reconPage, 'whoisTextEdit'):
-            whois_text = ""
-            for domain in result.domains:
-                whois_text += f"Domain: {domain.domain}\n"
-                whois_text += f"Registrar: {domain.registrar}\n"
-                whois_text += f"Creation Date: {domain.creation_date}\n"
-                whois_text += f"Expiration Date: {domain.expiration_date}\n"
-                whois_text += f"Name Servers:\n"
-                for ns in domain.name_servers:
-                    whois_text += f"  - {ns}\n"
-                whois_text += "\nWhois Data:\n"
-                for key, value in domain.whois_data.items():
-                    whois_text += f"{key}: {value}\n"
-                whois_text += "\n" + "-"*40 + "\n"
-            self.reconPage.whoisTextEdit.setText(whois_text)
-        
-        # Update Summary tab
-        if hasattr(self.reconPage, 'summaryTextEdit'):
-            summary_text = f"Target: {result.target}\n"
-            summary_text += f"Scan Time: {time.ctime(result.scan_time)}\n"
-            summary_text += f"Duration: {result.get_duration():.2f} seconds\n\n"
-            
-            summary_text += f"Domains: {len(result.domains)}\n"
-            summary_text += f"Hosts: {len(result.hosts)}\n"
-            
-            # Count DNS records
-            dns_count = 0
-            for domain in result.domains:
-                dns_count += len(domain.dns_records)
-            summary_text += f"DNS Records: {dns_count}\n"
-            
-            # Count subdomains
-            subdomain_count = 0
-            for domain in result.domains:
-                subdomain_count += len(domain.subdomains)
-            summary_text += f"Subdomains: {subdomain_count}\n"
-            
-            # Count open ports
-            port_count = 0
-            for host in result.hosts:
-                port_count += len(host.open_ports)
-            summary_text += f"Open Ports: {port_count}\n"
-            
-            # Add notes
-            if result.notes:
-                summary_text += "\nNotes:\n"
-                for note in result.notes:
-                    summary_text += f"- {note}\n"
-            
-            self.reconPage.summaryTextEdit.setText(summary_text)
-        
-        # Clean up thread resources
-        if hasattr(self, 'recon_thread') and self.recon_thread:
-            self.recon_thread.quit()
-            self.recon_worker.deleteLater()
-            self.recon_thread.deleteLater()
+        # Switch to the visualization tab
+        if hasattr(self.reconPage, 'mainTabWidget'):
+            for i in range(self.reconPage.mainTabWidget.count()):
+                if self.reconPage.mainTabWidget.tabText(i) == "Visualization":
+                    self.reconPage.mainTabWidget.setCurrentIndex(i)
+                    break
         
     def stop_recon(self):
         """Stop reconnaissance"""

@@ -88,6 +88,34 @@ Or use the provided script:
 - **Exploitation Tools**: Tools for testing security measures
 - **Reporting**: Generate comprehensive security reports
 
+## New Feature: Data Visualization
+
+The latest update includes a powerful data visualization feature for reconnaissance results. This allows you to:
+
+- View a network graph of hosts and their open ports
+- Analyze port distribution with interactive bar charts
+- Explore subdomains with a hierarchical visualization
+- Get a comprehensive summary dashboard
+
+### Using the Visualization Feature
+
+1. Run a reconnaissance scan
+2. After the scan completes, the results will automatically be displayed in the Visualization tab
+3. You can switch between different visualization types using the controls at the bottom
+4. Export visualizations to PNG, JPEG, PDF, or SVG formats using the Export button
+
+### Installing Visualization Dependencies
+
+To use the visualization features, you need to install the required dependencies:
+
+```bash
+# Using the provided script
+./install_viz_deps.sh
+
+# Or manually with pip
+pip install matplotlib>=3.5.0 networkx>=2.7.0 numpy>=1.22.0 pyqtgraph>=0.12.0
+```
+
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
