@@ -9,6 +9,7 @@ from dataclasses import dataclass, field, asdict
 from collections import defaultdict
 import networkx as nx  # For network graph representation
 import nmap  # For network scanning
+import shutil  # For checking sudo availability
 
 from src.utils.logger import get_module_logger
 from src.utils.config import ConfigManager
@@ -246,36 +247,56 @@ class NetworkMapper:
             hosts_data = self._run_nmap_scan(target_network, detail_level, kwargs.get("nmap_options", {}))
             
             # Process nmap data into nodes
+            network_nodes = {}
             for host_ip, host_data in hosts_data.items():
-                node = NetworkNode(
-                    ip_address=host_ip,
-                    status="up",
-                    nmap_data=host_data
-                )
+                # Check if we already have a node for this IP
+                if host_ip in network_nodes:
+                    node = network_nodes[host_ip]
+                else:
+                    # Create a new node
+                    node = NetworkNode(ip_address=host_ip)
+                    network_nodes[host_ip] = node
                 
-                # Extract hostname
-                if host_data.get('hostnames'):
-                    hostnames = host_data.get('hostnames', [])
-                    if hostnames and len(hostnames) > 0 and 'name' in hostnames[0]:
-                        node.hostname = hostnames[0]['name']
+                # Update with nmap data
+                if 'hostnames' in host_data and host_data['hostnames']:
+                    for entry in host_data['hostnames']:
+                        if entry.get('name'):
+                            node.hostname = entry.get('name')
+                            break
                 
-                # Extract OS info
-                if host_data.get('osmatch'):
-                    os_matches = host_data.get('osmatch', [])
-                    if os_matches and len(os_matches) > 0:
-                        node.os_info = os_matches[0]['name']
+                # Extract OS information
+                if 'osmatch' in host_data and host_data['osmatch']:
+                    # Sort by accuracy and take the top match
+                    os_matches = sorted(host_data['osmatch'], key=lambda x: int(x.get('accuracy', 0)), reverse=True)
+                    if os_matches:
+                        node.os_info = os_matches[0].get('name', 'Unknown')
                 
-                # Extract MAC and vendor if available
-                if host_data.get('addresses'):
-                    addresses = host_data.get('addresses', {})
-                    if 'mac' in addresses:
-                        node.mac_address = addresses['mac']
-                    if 'vendor' in host_data:
-                        vendors = host_data.get('vendor', {})
-                        if node.mac_address in vendors:
-                            node.vendor = vendors[node.mac_address]
+                # Extract open ports and services
+                ports_info = []
+                if 'tcp' in host_data:
+                    for port, port_data in host_data['tcp'].items():
+                        if port_data.get('state') == 'open':
+                            # Add to ports info for debugging
+                            service = port_data.get('name', 'unknown')
+                            product = port_data.get('product', '')
+                            version = port_data.get('version', '')
+                            service_str = service
+                            if product:
+                                service_str += f" ({product}"
+                                if version:
+                                    service_str += f" {version}"
+                                service_str += ")"
+                            
+                            ports_info.append(f"{port}/tcp: {service_str}")
                 
-                # Determine node type based on open ports and services
+                # Store the full nmap data in the node
+                node.nmap_data = host_data
+                
+                # Log found services for debugging
+                if self._log_callback and ports_info:
+                    self._log_callback(f"[*] Host {host_ip} has open ports: {', '.join(ports_info)}")
+                
+                # Update node type based on services
                 node.node_type = self._determine_node_type_from_nmap(host_data)
                 
                 # Add the node to the result
@@ -304,11 +325,10 @@ class NetworkMapper:
                         self._log_callback(f"    - Vendor: {node.vendor}")
                     
                     # Show open ports
-                    if host_data.get('tcp'):
+                    if ports_info:
                         self._log_callback(f"    - Open TCP ports:")
-                        for port, port_data in host_data['tcp'].items():
-                            service = port_data.get('name', 'unknown')
-                            self._log_callback(f"      {port}/tcp: {service}")
+                        for port_info in ports_info:
+                            self._log_callback(f"      {port_info}")
         elif ping_sweep:
             # Use the original ping sweep method
             if self._log_callback:
@@ -774,7 +794,7 @@ class NetworkMapper:
 
     def _run_nmap_scan(self, target: str, detail_level: str = "medium", scan_options: Dict = None) -> Dict[str, Dict]:
         """
-        Run an nmap scan on the target.
+        Run an nmap scan on the target network.
         
         Args:
             target: Target to scan (IP, CIDR, hostname)
@@ -789,67 +809,104 @@ class NetworkMapper:
         
         # Base arguments depending on detail level
         if detail_level == "low":
-            # Fast scan with ping discovery
-            args = "-sn"  # Ping scan only
+            # Fast scan with ping discovery - compatible with non-root
+            args = "-sT --top-ports 100"  # Connect scan which doesn't require root
         elif detail_level == "medium":
             # Default scan for most common ports with service detection
-            args = "-sS -sV -O --top-ports 100"  # SYN scan with service and OS detection
+            args = "-sT -sV --top-ports 100"  # Connect scan with service detection
         else:  # high
             # Comprehensive scan
-            args = "-sS -sV -O -A --top-ports 1000"  # SYN scan with service detection, OS detection, and script scanning
+            args = "-sT -sV -A --top-ports 1000"  # Connect scan with service detection and script scanning
+        
+        # Check if we're running as root
+        import os as os_module  # Import with alias to avoid any shadowing
+        is_root = os_module.geteuid() == 0 if hasattr(os_module, 'geteuid') else False
         
         # If scan options are provided, build custom arguments
         if scan_options:
             # Reset args as we'll build them from scratch
             args = ""
             
-            # Scan types
-            if scan_options.get("tcp_syn_scan"):
+            # Scan types - avoid privileged scans if not root
+            if scan_options.get("tcp_syn_scan") and is_root:
                 args += " -sS"
+            elif scan_options.get("tcp_syn_scan"):
+                args += " -sT"  # Fall back to connect scan
+                if self._log_callback:
+                    self._log_callback(f"[!] SYN scan requires root privileges, using TCP Connect scan instead.")
+            
             if scan_options.get("tcp_connect_scan"):
                 args += " -sT"
-            if scan_options.get("udp_scan"):
+                
+            if scan_options.get("udp_scan") and is_root:
                 args += " -sU"
+            elif scan_options.get("udp_scan"):
+                if self._log_callback:
+                    self._log_callback(f"[!] UDP scan requires root privileges, skipping.")
+                
             if scan_options.get("ping_scan"):
                 args += " -sn"
-            if scan_options.get("fin_scan"):
+                
+            if scan_options.get("fin_scan") and is_root:
                 args += " -sF"
-            if scan_options.get("null_scan"):
+            elif scan_options.get("fin_scan"):
+                if self._log_callback:
+                    self._log_callback(f"[!] FIN scan requires root privileges, skipping.")
+                
+            if scan_options.get("null_scan") and is_root:
                 args += " -sN"
-            if scan_options.get("xmas_scan"):
+            elif scan_options.get("null_scan"):
+                if self._log_callback:
+                    self._log_callback(f"[!] NULL scan requires root privileges, skipping.")
+                
+            if scan_options.get("xmas_scan") and is_root:
                 args += " -sX"
-            if scan_options.get("idle_scan") and scan_options.get("idle_zombie"):
+            elif scan_options.get("xmas_scan"):
+                if self._log_callback:
+                    self._log_callback(f"[!] XMAS scan requires root privileges, skipping.")
+                
+            if scan_options.get("idle_scan") and scan_options.get("idle_zombie") and is_root:
                 zombie = self._validate_ip(scan_options.get('idle_zombie', ''))
                 if zombie:
                     args += f" -sI {zombie}"
-            if scan_options.get("ip_protocol_scan"):
+            elif scan_options.get("idle_scan"):
+                if self._log_callback:
+                    self._log_callback(f"[!] Idle scan requires root privileges, skipping.")
+                
+            if scan_options.get("ip_protocol_scan") and is_root:
                 args += " -sO"
+            elif scan_options.get("ip_protocol_scan"):
+                if self._log_callback:
+                    self._log_callback(f"[!] IP Protocol scan requires root privileges, skipping.")
+                
+            # If no scan type was added due to permission issues, add a default TCP Connect scan
+            if not any(arg in args for arg in ["-sS", "-sT", "-sU", "-sF", "-sN", "-sX", "-sI", "-sO", "-sn"]):
+                args += " -sT"
                 
             # Discovery options
             if scan_options.get("disable_ping"):
                 args += " -Pn"
             if scan_options.get("tcp_syn_ping"):
                 args += " -PS"
-            if scan_options.get("tcp_ack_ping"):
+            if scan_options.get("tcp_ack_ping") and is_root:
                 args += " -PA"
-            if scan_options.get("udp_ping"):
+            if scan_options.get("udp_ping") and is_root:
                 args += " -PU"
-            if scan_options.get("sctp_ping"):
+            if scan_options.get("sctp_ping") and is_root:
                 args += " -PY"
-            if scan_options.get("icmp_echo_ping"):
+            if scan_options.get("icmp_echo_ping") and is_root:
                 args += " -PE"
                 
             # Advanced options
-            if scan_options.get("port_range"):
-                port_range = self._validate_port_range(scan_options.get('port_range', ''))
-                if port_range:
-                    args += f" -p {port_range}"
+            port_range = self._validate_port_range(scan_options.get('port_range', ''))
+            if port_range:
+                args += f" -p {port_range}"
             
             # Timing template
-            if scan_options.get("timing_template") is not None:
-                timing = scan_options.get("timing_template")
-                if 0 <= timing <= 5:
-                    args += f" -T{timing}"
+            timing_idx = scan_options.get("timing_template")
+            if timing_idx is not None:
+                if 0 <= timing_idx <= 5:
+                    args += f" -T{timing_idx}"
             
             # Script scan
             if scan_options.get("script_scan"):
@@ -869,8 +926,14 @@ class NetworkMapper:
                         args += f" --version-intensity {intensity}"
             
             # OS Detection if requested
-            if scan_options.get("os_detection"):
+            if scan_options.get("os_detection") and is_root:
                 args += " -O"
+            elif scan_options.get("os_detection"):
+                if self._log_callback:
+                    self._log_callback(f"[!] OS detection requires root privileges, skipping.")
+            
+            # Always add -v for verbosity
+            args += " -v"
             
             # Custom arguments (overrides everything if specified, but validate first)
             if scan_options.get("custom_args"):
@@ -880,6 +943,14 @@ class NetworkMapper:
         
         # Trim leading/trailing whitespace
         args = args.strip()
+        
+        # If no scan type included, add a basic connect scan
+        if not any(arg in args for arg in ["-sS", "-sT", "-sU", "-sF", "-sN", "-sX", "-sI", "-sO", "-sn"]):
+            args = "-sT " + args
+
+        # Always use -Pn if not already specified to avoid ping issues
+        if "-Pn" not in args:
+            args += " -Pn"
         
         # Log the nmap command
         if self._log_callback:
@@ -893,11 +964,73 @@ class NetworkMapper:
             return {}
         
         try:
-            # Run the nmap scan
-            self.nmap_scanner.scan(hosts=target, arguments=args)
+            # Check if we need to try sudo
+            if not is_root and any(opt in args for opt in ["-sS", "-sU", "-sF", "-sN", "-sX", "-sI", "-sO", "-O"]):
+                # Try to use sudo if available
+                if shutil.which('sudo'):
+                    if self._log_callback:
+                        self._log_callback(f"[*] Attempting to use sudo for privileged scan...")
+                    
+                    try:
+                        import subprocess
+                        sudo_args = f"sudo nmap {args} {target} -oX -"
+                        process = subprocess.Popen(sudo_args, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                        stdout, stderr = process.communicate()
+                        
+                        if process.returncode == 0:
+                            # Parse XML output
+                            self.nmap_scanner._nmap_last_output = stdout
+                            xml_output = stdout.decode('utf-8')
+                            self.nmap_scanner._nmap_run_command = sudo_args
+                            self.nmap_scanner._scan_result = self.nmap_scanner._parse_xml_output(xml_output)
+                            
+                            if self._log_callback:
+                                self._log_callback(f"[+] Sudo nmap scan completed successfully.")
+                            
+                            # Process the scan results normally
+                        else:
+                            error_msg = stderr.decode('utf-8')
+                            if self._log_callback:
+                                self._log_callback(f"[!] Error with sudo nmap: {error_msg}")
+                            
+                            # Fall back to regular scan
+                            args = args.replace("-sS", "-sT")
+                            args = args.replace("-sO", "")
+                            args = args.replace("-O", "")
+                            args = ''.join([c for c in args if c not in "-sU -sF -sN -sX -sI"])
+                            if self._log_callback:
+                                self._log_callback(f"[*] Falling back to unprivileged scan: nmap {args} {target}")
+                            
+                            self.nmap_scanner.scan(hosts=target, arguments=args)
+                    except Exception as e:
+                        if self._log_callback:
+                            self._log_callback(f"[!] Error with sudo approach: {str(e)}")
+                        
+                        # Fall back to regular scan with non-privileged options
+                        args = args.replace("-sS", "-sT")
+                        args = args.replace("-sO", "")
+                        args = args.replace("-O", "")
+                        args = ''.join([c for c in args if c not in "-sU -sF -sN -sX -sI"])
+                        if self._log_callback:
+                            self._log_callback(f"[*] Falling back to unprivileged scan: nmap {args} {target}")
+                        
+                        self.nmap_scanner.scan(hosts=target, arguments=args)
+                else:
+                    # No sudo available, strip privileged options
+                    args = args.replace("-sS", "-sT")
+                    args = args.replace("-sO", "")
+                    args = args.replace("-O", "")
+                    args = ''.join([c for c in args if c not in "-sU -sF -sN -sX -sI"])
+                    if self._log_callback:
+                        self._log_callback(f"[*] Using unprivileged scan: nmap {args} {target}")
+                    
+                    self.nmap_scanner.scan(hosts=target, arguments=args)
+            else:
+                # Run the nmap scan normally
+                self.nmap_scanner.scan(hosts=target, arguments=args)
             
             # Get the raw XML output
-            raw_output = self.nmap_scanner.get_nmap_last_output().decode('utf-8')
+            raw_output = self.nmap_scanner.get_nmap_last_output().decode('utf-8', errors='ignore')
             
             # Log the raw output for debugging if needed
             logger.debug(f"Nmap raw output: {raw_output}")
@@ -910,92 +1043,106 @@ class NetworkMapper:
                 # Parse the raw output and extract the key elements
                 import xml.etree.ElementTree as ET
                 try:
-                    root = ET.fromstring(raw_output)
-                    
-                    # Extract nmap command and scan info
-                    nmap_command = root.attrib.get('args', 'nmap command not found')
-                    self._log_callback(f"  Command: {nmap_command}")
-                    
-                    # Extract scanner version
-                    scaninfo = root.find('scaninfo')
-                    if scaninfo is not None:
-                        scan_type = scaninfo.attrib.get('type', 'unknown')
-                        protocol = scaninfo.attrib.get('protocol', 'unknown')
-                        self._log_callback(f"  Scan type: {scan_type} ({protocol})")
-                    
-                    # Extract host information
-                    for host in root.findall('host'):
-                        status = host.find('status')
-                        if status is not None and status.attrib.get('state') == 'up':
-                            # Get IP address
-                            ip = "unknown"
-                            for addr in host.findall('address'):
-                                if addr.attrib.get('addrtype') == 'ipv4':
-                                    ip = addr.attrib.get('addr')
-                            
-                            self._log_callback(f"\n  Host: {ip} is up")
-                            
-                            # Get hostnames
-                            hostnames = host.find('hostnames')
-                            if hostnames is not None:
-                                for hostname in hostnames.findall('hostname'):
-                                    name = hostname.attrib.get('name')
-                                    self._log_callback(f"  Hostname: {name}")
-                            
-                            # Get ports
-                            ports = host.find('ports')
-                            if ports is not None:
-                                self._log_callback(f"  Ports:")
-                                for port in ports.findall('port'):
-                                    port_id = port.attrib.get('portid')
-                                    protocol = port.attrib.get('protocol')
-                                    state = port.find('state').attrib.get('state') if port.find('state') is not None else 'unknown'
-                                    
-                                    service_info = ""
-                                    service = port.find('service')
-                                    if service is not None:
-                                        service_name = service.attrib.get('name', 'unknown')
-                                        product = service.attrib.get('product', '')
-                                        version = service.attrib.get('version', '')
+                    # Try to parse the XML output
+                    if raw_output.strip():
+                        root = ET.fromstring(raw_output)
+                        
+                        # Extract nmap command and scan info
+                        nmap_command = root.attrib.get('args', 'nmap command not found')
+                        self._log_callback(f"  Command: {nmap_command}")
+                        
+                        # Extract scanner version
+                        scaninfo = root.find('scaninfo')
+                        if scaninfo is not None:
+                            scan_type = scaninfo.attrib.get('type', 'unknown')
+                            protocol = scaninfo.attrib.get('protocol', 'unknown')
+                            self._log_callback(f"  Scan type: {scan_type} ({protocol})")
+                        
+                        # Extract host information
+                        for host in root.findall('host'):
+                            status = host.find('status')
+                            if status is not None and status.attrib.get('state') == 'up':
+                                # Get IP address
+                                ip = "unknown"
+                                for addr in host.findall('address'):
+                                    if addr.attrib.get('addrtype') == 'ipv4':
+                                        ip = addr.attrib.get('addr')
+                                
+                                self._log_callback(f"\n  Host: {ip} is up")
+                                
+                                # Get hostnames
+                                hostnames = host.find('hostnames')
+                                if hostnames is not None:
+                                    for hostname in hostnames.findall('hostname'):
+                                        name = hostname.attrib.get('name')
+                                        self._log_callback(f"  Hostname: {name}")
+                                
+                                # Get ports
+                                ports = host.find('ports')
+                                if ports is not None:
+                                    self._log_callback(f"  Ports:")
+                                    for port in ports.findall('port'):
+                                        port_id = port.attrib.get('portid')
+                                        protocol = port.attrib.get('protocol')
+                                        state = port.find('state').attrib.get('state') if port.find('state') is not None else 'unknown'
                                         
-                                        service_info = f"{service_name}"
-                                        if product:
-                                            service_info += f" {product}"
-                                            if version:
-                                                service_info += f" {version}"
-                                    
-                                    self._log_callback(f"    {port_id}/{protocol} {state} {service_info}")
-                                    
-                                    # Display script output for this port if available
-                                    for script in port.findall('script'):
+                                        service_info = ""
+                                        service = port.find('service')
+                                        if service is not None:
+                                            service_name = service.attrib.get('name', 'unknown')
+                                            product = service.attrib.get('product', '')
+                                            version = service.attrib.get('version', '')
+                                            
+                                            service_info = f"{service_name}"
+                                            if product:
+                                                service_info += f" {product}"
+                                                if version:
+                                                    service_info += f" {version}"
+                                        
+                                        self._log_callback(f"    {port_id}/{protocol} {state} {service_info}")
+                                        
+                                        # Display script output for this port if available
+                                        for script in port.findall('script'):
+                                            script_id = script.attrib.get('id', 'unknown')
+                                            output = script.attrib.get('output', '').strip()
+                                            # Only show the first 100 chars of script output
+                                            if len(output) > 100:
+                                                output = output[:100] + "..."
+                                            self._log_callback(f"      {script_id}: {output}")
+                                
+                                # Get OS information
+                                os_elem = host.find('os')
+                                if os_elem is not None:
+                                    self._log_callback(f"  OS Detection:")
+                                    for osmatch in os_elem.findall('osmatch'):
+                                        name = osmatch.attrib.get('name', 'Unknown')
+                                        accuracy = osmatch.attrib.get('accuracy', '0')
+                                        self._log_callback(f"    {name} (Accuracy: {accuracy}%)")
+                                
+                                # Get hostname from host-level scripts
+                                hostscripts = host.find('hostscripts')
+                                if hostscripts is not None:
+                                    self._log_callback(f"  Host Scripts:")
+                                    for script in hostscripts.findall('script'):
                                         script_id = script.attrib.get('id', 'unknown')
                                         output = script.attrib.get('output', '').strip()
                                         # Only show the first 100 chars of script output
                                         if len(output) > 100:
                                             output = output[:100] + "..."
-                                        self._log_callback(f"      {script_id}: {output}")
-                            
-                            # Get OS information
-                            os = host.find('os')
-                            if os is not None:
-                                self._log_callback(f"  OS Detection:")
-                                for osmatch in os.findall('osmatch'):
-                                    name = osmatch.attrib.get('name', 'Unknown')
-                                    accuracy = osmatch.attrib.get('accuracy', '0')
-                                    self._log_callback(f"    {name} (Accuracy: {accuracy}%)")
-                            
-                            # Get hostname from host-level scripts
-                            hostscripts = host.find('hostscripts')
-                            if hostscripts is not None:
-                                self._log_callback(f"  Host Scripts:")
-                                for script in hostscripts.findall('script'):
-                                    script_id = script.attrib.get('id', 'unknown')
-                                    output = script.attrib.get('output', '').strip()
-                                    # Only show the first 100 chars of script output
-                                    if len(output) > 100:
-                                        output = output[:100] + "..."
-                                    self._log_callback(f"    {script_id}: {output}")
-                
+                                        self._log_callback(f"    {script_id}: {output}")
+                    else:
+                        self._log_callback("[!] No XML output received from nmap")
+                except ET.ParseError:
+                    self._log_callback("[!] Could not parse XML output from nmap")
+                    # If XML parsing fails, just provide the command and basic info
+                    self._log_callback(f"  Command: nmap {args} {target}")
+                    self._log_callback("  Raw output:")
+                    
+                    # Try to display some meaningful information from the non-XML output
+                    lines = raw_output.split('\n')
+                    for line in lines[:20]:  # Show first 20 lines
+                        if line.strip():
+                            self._log_callback(f"    {line}")
                 except Exception as e:
                     # If XML parsing fails, just provide the command and basic info
                     self._log_callback(f"  Command: nmap {args} {target}")
@@ -1003,14 +1150,40 @@ class NetworkMapper:
                 
                 # Log scan completion info
                 self._log_callback(f"\n[+] Nmap scan completed: {self.nmap_scanner.command_line()}")
-                self._log_callback(f"[+] Scan info: {self.nmap_scanner.scaninfo()}")
-                self._log_callback(f"[+] Scan stats: {self.nmap_scanner.scanstats()}")
-                self._log_callback(f"[+] Found {len(self.nmap_scanner.all_hosts())} hosts up")
+                
+                # Log scan stats if available
+                try:
+                    scaninfo = self.nmap_scanner.scaninfo()
+                    self._log_callback(f"[+] Scan info: {scaninfo}")
+                except:
+                    pass
+                
+                try:
+                    scanstats = self.nmap_scanner.scanstats()
+                    self._log_callback(f"[+] Scan stats: {scanstats}")
+                except:
+                    pass
+                
+                try:
+                    all_hosts = self.nmap_scanner.all_hosts()
+                    self._log_callback(f"[+] Found {len(all_hosts)} hosts up")
+                except:
+                    pass
             
             # Return the scan results
             hosts = {}
-            for host in self.nmap_scanner.all_hosts():
-                hosts[host] = self.nmap_scanner[host]
+            try:
+                for host in self.nmap_scanner.all_hosts():
+                    hosts[host] = self.nmap_scanner[host]
+            except Exception as e:
+                if self._log_callback:
+                    self._log_callback(f"[!] Error processing scan results: {str(e)}")
+            
+            # If no hosts were found but we know the scan ran, add at least the target
+            if not hosts and target:
+                if self._log_callback:
+                    self._log_callback(f"[!] No host data returned by nmap, adding target as placeholder")
+                hosts[target] = {'status': {'state': 'unknown'}}
                 
             return hosts
         except Exception as e:
@@ -1021,58 +1194,110 @@ class NetworkMapper:
     
     def _determine_node_type_from_nmap(self, host_data: Dict) -> str:
         """
-        Determine the node type from nmap scan data.
-        
-        Args:
-            host_data: Nmap scan data for a host
-            
-        Returns:
-            str: Node type
+        Determine the device type based on nmap scan data
         """
-        # Check for common port signatures to identify device types
-        if not host_data.get('tcp'):
-            return "host"
-            
-        ports = host_data.get('tcp', {}).keys()
-        port_list = list(map(int, ports))
+        # Default node type is 'host'
+        node_type = 'host'
         
-        # Check for common port signatures
-        if 80 in port_list or 443 in port_list:
-            # Web server
-            if 3306 in port_list or 5432 in port_list:
-                return "Database Server"
-            if 8080 in port_list or 8443 in port_list:
-                return "Application Server"
-            return "Web Server"
+        try:
+            # Extract services from TCP ports
+            services = []
+            if 'tcp' in host_data:
+                for port, port_data in host_data['tcp'].items():
+                    service = port_data.get('name', '').lower()
+                    product = port_data.get('product', '').lower()
+                    
+                    if service:
+                        services.append(service)
+                    if product:
+                        services.append(product)
             
-        if 22 in port_list:
-            # SSH server, likely a Linux/Unix system
-            if 21 in port_list:
-                return "FTP Server"
-            return "Linux Server"
+            # Examine OS information
+            os_info = ''
+            if 'osmatch' in host_data and host_data['osmatch']:
+                os_matches = sorted(host_data['osmatch'], key=lambda x: int(x.get('accuracy', 0)), reverse=True)
+                if os_matches:
+                    os_info = os_matches[0].get('name', '').lower()
             
-        if 3389 in port_list:
-            # RDP port, likely a Windows system
-            if 445 in port_list or 139 in port_list:
-                return "Windows Server"
-            return "Windows Workstation"
+            # Check for router/gateway
+            if any(s in services for s in ['router', 'gateway']) or 'mikrotik' in str(services).lower():
+                node_type = 'Router'
             
-        if 161 in port_list or 162 in port_list:
-            # SNMP, likely a network device
-            if 23 in port_list:
-                return "Network Switch"
-            return "Network Device"
+            # Check for switches
+            elif any(s in services for s in ['snmp', 'switch']):
+                node_type = 'switch'
             
-        if 53 in port_list:
-            # DNS server
-            return "DNS Server"
+            # Check for printers
+            elif any(s in services for s in ['printer', 'ipp', 'jetdirect']):
+                node_type = 'Printer'
             
-        if 25 in port_list or 587 in port_list:
-            # Mail server
-            return "Mail Server"
+            # Check for firewalls
+            elif any(s in services for s in ['firewall', 'pfsense']):
+                node_type = 'firewall'
             
-        # Default to host if no specific type is identified
-        return "host"
+            # Check for surveillance cameras
+            elif any(s in services for s in ['rtsp', 'onvif', 'camera']):
+                node_type = 'IP Camera'
+            
+            # Check for IoT devices
+            elif any(s in services for s in ['mqtt', 'iot']):
+                node_type = 'IoT Device'
+            
+            # Check for servers by port
+            elif 'ssh' in services and 'http' in services:
+                if 'apache' in str(services).lower() or 'nginx' in str(services).lower():
+                    node_type = 'Web Server'
+                elif 'mysql' in str(services).lower() or 'postgresql' in str(services).lower():
+                    node_type = 'Database Server'
+                else:
+                    node_type = 'Linux Server'
+            
+            # Check for database servers
+            elif any(s in services for s in ['mysql', 'postgresql', 'oracle', 'db2', 'mssql']):
+                node_type = 'Database Server'
+            
+            # Check for web servers
+            elif any(s in services for s in ['http', 'https', 'apache', 'nginx', 'iis']):
+                node_type = 'Web Server'
+            
+            # Check for mail servers
+            elif any(s in services for s in ['smtp', 'pop3', 'imap', 'exchange']):
+                node_type = 'Mail Server'
+            
+            # Check for DNS servers
+            elif 'domain' in services:
+                node_type = 'DNS Server'
+            
+            # Check for FTP servers
+            elif 'ftp' in services:
+                node_type = 'FTP Server'
+            
+            # Check for application servers
+            elif any(s in services for s in ['tomcat', 'jboss', 'weblogic', 'websphere']):
+                node_type = 'Application Server'
+            
+            # Determine based on OS
+            elif os_info:
+                if 'windows' in os_info:
+                    if 'server' in os_info:
+                        node_type = 'Windows Server'
+                    else:
+                        node_type = 'Windows Workstation'
+                elif any(os in os_info for os in ['linux', 'ubuntu', 'debian', 'centos', 'redhat', 'fedora']):
+                    node_type = 'Linux Server'
+                elif 'mac' in os_info or 'apple' in os_info:
+                    node_type = 'Workstation'
+            
+            # Fallback based on open ports
+            elif 22 in host_data.get('tcp', {}):  # SSH port
+                node_type = 'Linux Server'
+            elif 3389 in host_data.get('tcp', {}):  # RDP port
+                node_type = 'Windows Server'
+        
+        except Exception as e:
+            logger.error(f"Error determining node type: {e}")
+        
+        return node_type
 
     def _validate_ip(self, ip: str) -> str:
         """

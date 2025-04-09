@@ -23,7 +23,7 @@ class MainWindow(QtWidgets.QMainWindow):
         
         # Load additional UI pages
         self.reconPage = uic.loadUi("src/ui/recon.ui")
-        self.vulnScanPage = uic.loadUi("src/ui/vuln_scan.ui")
+        self.vulnScanPage = uic.loadUi("src/ui/vuln_scanner.ui")
         self.bruteForceePage = uic.loadUi("src/ui/brute_force.ui")
         self.payloadGenPage = uic.loadUi("src/ui/payload_gen.ui")
         self.exploitExecPage = uic.loadUi("src/ui/exploit_exec.ui")
@@ -46,29 +46,51 @@ class MainWindow(QtWidgets.QMainWindow):
         self.stackedWidget.addWidget(self.settingsPage)
         self.stackedWidget.addWidget(self.reportPage)
         
-        # Set up the toolbar icons and connect them to functions
-        self.reconButton = self.ui.findChild(QtWidgets.QToolButton, "reconButton")
-        self.vulnScanButton = self.ui.findChild(QtWidgets.QToolButton, "vulnScanButton")
-        self.bruteForceButton = self.ui.findChild(QtWidgets.QToolButton, "bruteForceButton")
-        self.payloadGenButton = self.ui.findChild(QtWidgets.QToolButton, "payloadGenButton")
-        self.exploitExecButton = self.ui.findChild(QtWidgets.QToolButton, "exploitExecButton")
-        self.networkMapperButton = self.ui.findChild(QtWidgets.QToolButton, "networkMapperButton")
-        self.logsButton = self.ui.findChild(QtWidgets.QToolButton, "logsButton")
-        self.terminalButton = self.ui.findChild(QtWidgets.QToolButton, "terminalButton")
-        self.settingsButton = self.ui.findChild(QtWidgets.QToolButton, "settingsButton")
-        self.reportButton = self.ui.findChild(QtWidgets.QToolButton, "reportButton")
+        # Set up the dashboard module buttons and connect them to functions
+        self.reconButton = self.ui.findChild(QtWidgets.QPushButton, "reconButton")
+        self.vulnScannerButton = self.ui.findChild(QtWidgets.QPushButton, "vulnScannerButton")
+        self.bruteForceButton = self.ui.findChild(QtWidgets.QPushButton, "bruteForceButton")
+        self.payloadGenButton = self.ui.findChild(QtWidgets.QPushButton, "payloadGenButton")
+        self.exploitExecButton = self.ui.findChild(QtWidgets.QPushButton, "exploitExecButton")
+        self.networkMapperButton = self.ui.findChild(QtWidgets.QPushButton, "networkMapperButton")
+        self.serviceEnumButton = self.ui.findChild(QtWidgets.QPushButton, "serviceEnumButton")
+        self.scanEngineButton = self.ui.findChild(QtWidgets.QPushButton, "scanEngineButton")
+        self.webScannerButton = self.ui.findChild(QtWidgets.QPushButton, "webScannerButton")
+        self.authBypassButton = self.ui.findChild(QtWidgets.QPushButton, "authBypassButton")
+        self.reportGenButton = self.ui.findChild(QtWidgets.QPushButton, "reportGenButton")
+        self.settingsButton = self.ui.findChild(QtWidgets.QPushButton, "settingsButton")
         
-        # Connect toolbar buttons to switch pages
-        self.reconButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.reconPage))
-        self.vulnScanButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.vulnScanPage))
-        self.bruteForceButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.bruteForceePage))
-        self.payloadGenButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.payloadGenPage))
-        self.exploitExecButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.exploitExecPage))
-        self.networkMapperButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.networkMapperPage))
-        self.logsButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.logsPage))
-        self.terminalButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.terminalPage))
-        self.settingsButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.settingsPage))
-        self.reportButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.reportPage))
+        # Find the log and terminal utility buttons
+        self.clearLogsButton = self.ui.findChild(QtWidgets.QPushButton, "clearLogsButton")
+        self.saveLogsButton = self.ui.findChild(QtWidgets.QPushButton, "saveLogsButton")
+        self.terminalExecuteButton = self.ui.findChild(QtWidgets.QPushButton, "terminalExecuteButton")
+        self.terminalClearButton = self.ui.findChild(QtWidgets.QPushButton, "terminalClearButton")
+        
+        # Connect dashboard buttons to switch pages
+        if self.reconButton:
+            self.reconButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.reconPage))
+        if self.vulnScannerButton:
+            self.vulnScannerButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.vulnScanPage))
+        if self.bruteForceButton:
+            self.bruteForceButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.bruteForceePage))
+        if self.payloadGenButton:
+            self.payloadGenButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.payloadGenPage))
+        if self.exploitExecButton:
+            self.exploitExecButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.exploitExecPage))
+        if self.networkMapperButton:
+            self.networkMapperButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.networkMapperPage))
+        if self.serviceEnumButton:
+            self.serviceEnumButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.serviceEnumPage))
+        if self.scanEngineButton:
+            self.scanEngineButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.scanResultPage))
+        if self.webScannerButton:
+            self.webScannerButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.webScannerPage))
+        if self.authBypassButton:
+            self.authBypassButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.authBypassPage))
+        if self.reportGenButton:
+            self.reportGenButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.reportPage))
+        if self.settingsButton:
+            self.settingsButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.settingsPage))
         
         # Connect the nmap options - Checkbox to enable/disable script line edit
         self.networkMapperPage.scriptScanCheckBox.toggled.connect(self.toggle_nmap_script_field)
@@ -1149,21 +1171,39 @@ class MainWindow(QtWidgets.QMainWindow):
         
         # Generate network map visualization with proper data
         if hasattr(self, 'network_worker') and hasattr(self.networkMapperPage, 'networkMapView'):
-            # Check if the worker has a devices list
-            if not hasattr(self.network_worker, 'devices') or not self.network_worker.devices:
+            # Check if the worker has a map_result with nodes
+            has_valid_data = (hasattr(self.network_worker, 'map_result') and 
+                             self.network_worker.map_result and 
+                             hasattr(self.network_worker.map_result, 'nodes') and
+                             self.network_worker.map_result.nodes)
+            
+            if not has_valid_data:
                 # Show error or empty state in the Raw Output tab
-                self.append_output(self.networkMapperPage.rawTextEdit, "[!] No devices were found in the network mapping")
+                self.append_output(self.networkMapperPage.rawTextEdit, "[!] No network mapping data available for visualization.")
                 self.networkMapperPage.resultTabWidget.setCurrentIndex(2)  # Raw output tab
                 return
-            
-            scene = QtWidgets.QGraphicsScene()
-            self.networkMapperPage.networkMapView.setScene(scene)
             
             # Get the scan depth that was used
             scan_depth = self.network_worker.scan_depth if hasattr(self.network_worker, 'scan_depth') else "Standard"
             
-            # Get the devices from the worker
-            devices = self.network_worker.devices
+            # Convert the network nodes into devices for visualization and table
+            devices = []
+            for node in self.network_worker.map_result.nodes:
+                device = {
+                    "ip": node.ip_address,
+                    "hostname": node.hostname or "unknown",
+                    "mac": node.mac_address or "00:00:00:00:00:00",
+                    "type": node.node_type,
+                    "os": node.os_info or "Unknown"
+                }
+                devices.append(device)
+            
+            # Store the devices in the worker for export functionality
+            self.network_worker.devices = devices
+            
+            # Setup the visualization scene
+            scene = QtWidgets.QGraphicsScene()
+            self.networkMapperPage.networkMapView.setScene(scene)
             
             # Set scene size
             scene.setSceneRect(0, 0, 600, 400)
@@ -1180,21 +1220,42 @@ class MainWindow(QtWidgets.QMainWindow):
                 "host": QtGui.QColor(220, 220, 220),         # Light gray
                 "firewall": QtGui.QColor(255, 160, 160),     # Light red
                 "switch": QtGui.QColor(170, 170, 255),       # Light purple
+                "Web Server": QtGui.QColor(152, 251, 152),   # Pale green
+                "Database Server": QtGui.QColor(255, 215, 0), # Gold
+                "Application Server": QtGui.QColor(135, 206, 250), # Light sky blue
+                "Linux Server": QtGui.QColor(144, 238, 144), # Light green
+                "Windows Server": QtGui.QColor(100, 149, 237), # Cornflower blue
+                "Windows Workstation": QtGui.QColor(173, 216, 230), # Light blue
+                "Network Device": QtGui.QColor(170, 170, 255), # Light purple
+                "Mail Server": QtGui.QColor(240, 128, 128),  # Light coral
+                "DNS Server": QtGui.QColor(238, 130, 238),   # Violet
+                "FTP Server": QtGui.QColor(255, 165, 0),     # Orange
             }
             
             # Try to find a router or gateway as the central node
-            router = None
-            for device in devices:
-                if device.get("type", "").lower() in ["router", "gateway"]:
-                    router = device
+            router_node = None
+            for node in self.network_worker.map_result.nodes:
+                if node.node_type.lower() in ["router", "gateway"]:
+                    router_node = node
                     break
             
-            # If no router is found, use the first device
-            if not router and devices:
-                router = devices[0]
+            # If no router is found, use the first node
+            if not router_node and self.network_worker.map_result.nodes:
+                router_node = self.network_worker.map_result.nodes[0]
                 
-            if router:
+            # Create a mapping of IP addresses to node objects
+            node_map = {node.ip_address: node for node in self.network_worker.map_result.nodes}
+            
+            if router_node:
                 # Draw router at center
+                router = {
+                    "ip": router_node.ip_address,
+                    "hostname": router_node.hostname or "router.local",
+                    "mac": router_node.mac_address or "00:00:00:00:00:00",
+                    "type": router_node.node_type,
+                    "os": router_node.os_info or "Unknown"
+                }
+                
                 router_shape = scene.addEllipse(250, 100, 100, 100, 
                                               QtGui.QPen(QtCore.Qt.GlobalColor.black), 
                                               QtGui.QBrush(colors.get(router["type"], QtCore.Qt.GlobalColor.lightGray)))
@@ -1202,21 +1263,31 @@ class MainWindow(QtWidgets.QMainWindow):
                 router_text.setPos(270, 140)
                 
                 # Draw other devices based on how many there are
-                num_devices = len(devices) - 1  # Excluding router
+                num_devices = len(self.network_worker.map_result.nodes) - 1  # Excluding router
                 if num_devices > 0:
                     # Layout helpers
                     radius = 200  # Distance from center
                     
                     # Draw each device in a circular arrangement
-                    for i, device in enumerate(devices):
+                    idx = 0
+                    for node in self.network_worker.map_result.nodes:
                         # Skip the router (already drawn)
-                        if device == router:
+                        if node.ip_address == router_node.ip_address:
                             continue
                             
+                        # Create device info for drawing
+                        device = {
+                            "ip": node.ip_address,
+                            "hostname": node.hostname or "unknown",
+                            "mac": node.mac_address or "00:00:00:00:00:00",
+                            "type": node.node_type,
+                            "os": node.os_info or "Unknown"
+                        }
+                        
                         # Position calculations
-                        angle = (2 * 3.14159 * i) / num_devices
-                        x = 300 + radius * 0.7 * (0.5 if device["type"] == "Smart TV" else 1) * (0.7 if device["type"] == "Smart TV" else 1) * (1 if i % 2 else -1) * (0.6 + (i % 3) * 0.2)
-                        y = 250 + radius * 0.5 * (0.8 if i % 2 else 1.2) * (0.5 + (i % 4) * 0.1)
+                        angle = (2 * 3.14159 * idx) / num_devices
+                        x = 300 + radius * 0.7 * (0.5 if device["type"] == "Smart TV" else 1) * (0.7 if device["type"] == "Smart TV" else 1) * (1 if idx % 2 else -1) * (0.6 + (idx % 3) * 0.2)
+                        y = 250 + radius * 0.5 * (0.8 if idx % 2 else 1.2) * (0.5 + (idx % 4) * 0.1)
                         
                         # Create shape based on device type
                         if device["type"].lower() in ["printer"]:
@@ -1240,14 +1311,18 @@ class MainWindow(QtWidgets.QMainWindow):
                                                QtGui.QPen(QtCore.Qt.GlobalColor.black), 
                                                QtGui.QBrush(colors.get(device["type"], QtCore.Qt.GlobalColor.lightGray)))
                         
-                        # Add text label
-                        device_text = scene.addText(f"{device['type']}\n{device['ip']}")
+                        # Add text label with hostname and IP
+                        label = device['hostname'] if device['hostname'] != 'unknown' else device['ip']
+                        device_text = scene.addText(f"{device['type']}\n{label}")
                         device_text.setPos(x + 10, y + 20)
                         
                         # Add connection to router
                         center_x = 300
                         center_y = 150
                         scene.addLine(center_x, center_y, x + 40, y, QtGui.QPen(QtCore.Qt.GlobalColor.black, 2))
+                        
+                        # Increment for next device
+                        idx += 1
             
             # Populate devices table
             if hasattr(self.networkMapperPage, 'devicesTableWidget'):
@@ -1267,23 +1342,50 @@ class MainWindow(QtWidgets.QMainWindow):
                 # Resize columns to content
                 table.resizeColumnsToContents()
                 
-                # Check if we also have the NetworkMapResult
-                if hasattr(self.network_worker, 'map_result'):
-                    # Add additional data from map result
-                    self.append_output(self.networkMapperPage.rawTextEdit, f"\n[+] Network details:")
-                    self.append_output(self.networkMapperPage.rawTextEdit, f"  - Target network: {self.network_worker.map_result.target_network}")
-                    self.append_output(self.networkMapperPage.rawTextEdit, f"  - Scan time: {self.network_worker.map_result.scan_time}")
-                    self.append_output(self.networkMapperPage.rawTextEdit, f"  - Found {len(self.network_worker.map_result.nodes)} nodes")
-                    self.append_output(self.networkMapperPage.rawTextEdit, f"  - Found {len(self.network_worker.map_result.links)} links between nodes")
-                    
-                    # Add subnets information if available
-                    if self.network_worker.map_result.subnets:
-                        self.append_output(self.networkMapperPage.rawTextEdit, f"\n[+] Subnets detected:")
-                        for subnet in self.network_worker.map_result.subnets:
-                            self.append_output(self.networkMapperPage.rawTextEdit, f"  - {subnet}")
+                # Add additional data from map result
+                self.append_output(self.networkMapperPage.rawTextEdit, f"\n[+] Network details:")
+                self.append_output(self.networkMapperPage.rawTextEdit, f"  - Target network: {self.network_worker.map_result.target_network}")
+                self.append_output(self.networkMapperPage.rawTextEdit, f"  - Scan time: {self.network_worker.map_result.scan_time}")
+                self.append_output(self.networkMapperPage.rawTextEdit, f"  - Found {len(self.network_worker.map_result.nodes)} nodes")
+                self.append_output(self.networkMapperPage.rawTextEdit, f"  - Found {len(self.network_worker.map_result.links)} links between nodes")
+                
+                # Add subnets information if available
+                if self.network_worker.map_result.subnets:
+                    self.append_output(self.networkMapperPage.rawTextEdit, f"\n[+] Subnets detected:")
+                    for subnet in self.network_worker.map_result.subnets:
+                        self.append_output(self.networkMapperPage.rawTextEdit, f"  - {subnet}")
+                
+                # Add port information for each node
+                for node in self.network_worker.map_result.nodes:
+                    if hasattr(node, 'nmap_data') and node.nmap_data:
+                        self.append_output(self.networkMapperPage.rawTextEdit, f"\n[+] Nmap info for {node.ip_address}:")
+                        
+                        # Print open ports
+                        if 'tcp' in node.nmap_data:
+                            self.append_output(self.networkMapperPage.rawTextEdit, f"  Open TCP ports:")
+                            for port, data in node.nmap_data['tcp'].items():
+                                service = data.get('name', 'unknown')
+                                product = data.get('product', '')
+                                version = data.get('version', '')
+                                service_str = service
+                                if product:
+                                    service_str += f" ({product}"
+                                    if version:
+                                        service_str += f" {version}"
+                                    service_str += ")"
+                                
+                                self.append_output(self.networkMapperPage.rawTextEdit, f"    {port}: {service_str}")
+                        
+                        # Print OS detection results
+                        if 'osmatch' in node.nmap_data and node.nmap_data['osmatch']:
+                            self.append_output(self.networkMapperPage.rawTextEdit, f"  OS Detection:")
+                            for match in node.nmap_data['osmatch'][:2]:  # Show top 2 matches
+                                name = match.get('name', 'Unknown')
+                                accuracy = match.get('accuracy', '0')
+                                self.append_output(self.networkMapperPage.rawTextEdit, f"    {name} (Accuracy: {accuracy}%)")
                 
                 # Switch to the appropriate tab based on scan depth
-                if scan_depth == "Deep (Slow)":
+                if scan_depth == "Deep (Slow)" and len(self.network_worker.map_result.nodes) > 1:
                     self.networkMapperPage.resultTabWidget.setCurrentIndex(0)  # Map view
                 elif scan_depth == "Basic (Fast)":
                     self.networkMapperPage.resultTabWidget.setCurrentIndex(2)  # Raw output

@@ -7,48 +7,86 @@ import os
 import platform
 import shutil
 import sys
+import importlib.util
 
 def check_nmap_installed():
     """Check if nmap is installed on the system."""
     return shutil.which('nmap') is not None
 
 def get_nmap_installation_instructions():
-    """Get platform-specific instructions for installing nmap."""
-    system = platform.system().lower()
+    """
+    Get platform-specific instructions for installing nmap
+    Returns a string with installation instructions
+    """
+    platform = sys.platform
     
-    if system == 'linux':
-        # Check for specific distributions
-        try:
-            with open('/etc/os-release', 'r') as f:
-                os_info = f.read().lower()
-                
-            if 'ubuntu' in os_info or 'debian' in os_info:
-                return "sudo apt-get update && sudo apt-get install -y nmap"
-            elif 'fedora' in os_info or 'rhel' in os_info or 'centos' in os_info:
-                return "sudo dnf install -y nmap"
-            elif 'arch' in os_info:
-                return "sudo pacman -S nmap"
-            else:
-                return "Please install nmap using your distribution's package manager."
-        except:
-            return "Please install nmap using your distribution's package manager."
-    
-    elif system == 'darwin':  # macOS
-        return "brew install nmap"
-    
-    elif system == 'windows':
-        return "Please download and install nmap from https://nmap.org/download.html"
-    
-    return "Please install nmap from https://nmap.org/download.html"
+    if platform == "linux" or platform == "linux2":
+        # Linux
+        return "sudo apt-get install nmap\nor\nsudo yum install nmap"
+    elif platform == "darwin":
+        # macOS
+        return "brew install nmap\nor\nport install nmap"
+    elif platform == "win32":
+        # Windows
+        return "Download and install from https://nmap.org/download.html"
+    else:
+        # Unknown platform
+        return "Install nmap from https://nmap.org/download.html"
 
 def check_dependencies():
-    """Check all required dependencies and return a list of missing ones."""
+    """
+    Check if all required dependencies are installed.
+    Returns a list of tuples (dependency_name, installation_instructions) for missing dependencies.
+    """
     missing_deps = []
     
-    if not check_nmap_installed():
-        missing_deps.append(("nmap", get_nmap_installation_instructions()))
+    # PyQt6 dependencies
+    pyqt_deps = [
+        ("PyQt6", "pip install PyQt6"),
+        ("PyQt6.QtCore", "pip install PyQt6"),
+        ("PyQt6.QtWidgets", "pip install PyQt6"),
+        ("PyQt6.QtGui", "pip install PyQt6")
+    ]
+    
+    for name, install_cmd in pyqt_deps:
+        if not _is_module_installed(name):
+            missing_deps.append((name, install_cmd))
+    
+    # Network-related dependencies
+    network_deps = [
+        ("requests", "pip install requests"),
+        ("python-nmap", "pip install python-nmap")
+    ]
+    
+    for name, install_cmd in network_deps:
+        if not _is_module_installed(name):
+            missing_deps.append((name, install_cmd))
+    
+    # Other dependencies
+    other_deps = [
+        ("whois", "pip install python-whois"),
+        ("paramiko", "pip install paramiko"),
+        ("cryptography", "pip install cryptography")
+    ]
+    
+    for name, install_cmd in other_deps:
+        if not _is_module_installed(name):
+            missing_deps.append((name, install_cmd))
     
     return missing_deps
+
+def _is_module_installed(module_name):
+    """
+    Check if a module is installed
+    """
+    try:
+        # Try to find the spec
+        spec = importlib.util.find_spec(module_name)
+        if spec is None:
+            return False
+        return True
+    except (ImportError, ValueError):
+        return False
 
 def check_nmap_installation():
     """
@@ -84,12 +122,9 @@ def check_nmap_installation():
 
 if __name__ == "__main__":
     missing = check_dependencies()
-    
     if missing:
-        print("The following dependencies are missing:")
-        for dep, instructions in missing:
-            print(f"- {dep}: {instructions}")
-        sys.exit(1)
+        print("Missing dependencies:")
+        for dep, cmd in missing:
+            print(f"  - {dep}: {cmd}")
     else:
-        print("All dependencies are installed.")
-        sys.exit(0) 
+        print("All dependencies are installed.") 
