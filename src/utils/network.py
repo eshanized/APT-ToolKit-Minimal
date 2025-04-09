@@ -524,7 +524,7 @@ class NetworkUtils:
             
     def whois_lookup(self, domain: str) -> Dict[str, str]:
         """
-        Perform a WHOIS lookup for a domain name.
+        Perform a WHOIS lookup for a domain name using python-whois.
         
         Args:
             domain: Domain name to lookup.
@@ -533,50 +533,50 @@ class NetworkUtils:
             Dict[str, str]: Dictionary of WHOIS information.
         """
         try:
-            # Check if whois command is available
-            if os.name == 'nt':  # Windows
-                whois_cmd = ["whois", domain]
-            else:  # Unix-like
-                whois_cmd = ["whois", domain]
+            import whois
             
-            result = subprocess.run(
-                whois_cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                check=False
-            )
+            w = whois.whois(domain)
             
-            if result.returncode != 0:
-                logger.error(f"WHOIS lookup failed for {domain}: {result.stderr}")
-                return {}
-            
-            # Parse the WHOIS output - simplified parsing
+            # Convert the whois object to a dictionary
             whois_info = {}
-            current_key = None
             
-            for line in result.stdout.split('\n'):
-                line = line.strip()
-                if not line or line.startswith('%') or line.startswith('#'):
-                    continue
-                    
-                if ':' in line:
-                    parts = line.split(':', 1)
-                    key = parts[0].strip().lower()
-                    value = parts[1].strip()
-                    
-                    # Common WHOIS fields to capture
-                    if key in ['domain name', 'registrar', 'whois server', 
-                              'name server', 'updated date', 'creation date', 
-                              'expiration date', 'registrant name', 'registrant organization']:
-                        whois_info[key] = value
-                        current_key = key
-                elif current_key:
-                    # Continuation of previous field
-                    whois_info[current_key] += f" {line}"
+            # Process common fields
+            for key in ['domain_name', 'registrar', 'whois_server', 
+                        'name_servers', 'updated_date', 'creation_date', 
+                        'expiration_date', 'registrant', 'registrant_name', 
+                        'admin', 'tech', 'emails', 'dnssec', 'status']:
+                if hasattr(w, key) and getattr(w, key):
+                    value = getattr(w, key)
+                    # Convert lists to strings
+                    if isinstance(value, list):
+                        # For name servers, join with a space
+                        if key == 'name_servers':
+                            whois_info['name server'] = ' '.join(str(x) for x in value)
+                        else:
+                            whois_info[key.replace('_', ' ')] = ', '.join(str(x) for x in value)
+                    # Convert dates to strings
+                    elif key in ['creation_date', 'expiration_date', 'updated_date']:
+                        if isinstance(value, list) and value:
+                            # Use the first date if it's a list
+                            whois_info[key.replace('_', ' ')] = str(value[0])
+                        else:
+                            whois_info[key.replace('_', ' ')] = str(value)
+                    else:
+                        whois_info[key.replace('_', ' ')] = str(value)
+            
+            # Add any other fields that might be present in the whois data
+            for key, value in w.items():
+                if key not in whois_info:
+                    if isinstance(value, list):
+                        whois_info[key] = ', '.join(str(x) for x in value)
+                    else:
+                        whois_info[key] = str(value)
             
             return whois_info
                 
+        except ImportError as e:
+            logger.error(f"Python whois module not installed. Please install with 'pip install python-whois'")
+            return {}
         except Exception as e:
             logger.error(f"Error in WHOIS lookup for {domain}: {e}")
             return {}
