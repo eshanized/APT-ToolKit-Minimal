@@ -84,6 +84,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # Connect Recon buttons
         self.reconPage.startButton.clicked.connect(self.start_recon)
+        self.reconPage.stopButton.clicked.connect(self.stop_recon)
         
         # Connect Network Mapper buttons
         self.networkMapperPage.startButton.clicked.connect(self.start_network_mapping)
@@ -159,20 +160,48 @@ class MainWindow(QtWidgets.QMainWindow):
         self.append_recon_output(f"[*] Running reconnaissance on: {target}")
         self.spinner.setVisible(True)
         self.spinner.movie().start()
+        
+        # Update UI state
+        self.reconPage.startButton.setEnabled(False)
+        self.reconPage.stopButton.setEnabled(True)
 
         # Run recon in separate thread
-        thread = QtCore.QThread()
-        worker = ReconWorker(target, self.logger)
-        worker.moveToThread(thread)
+        self.recon_thread = QtCore.QThread()
+        self.recon_worker = ReconWorker(target, self.logger)
+        self.recon_worker.moveToThread(self.recon_thread)
 
-        worker.output_signal.connect(self.append_recon_output)
-        worker.finished_signal.connect(lambda: self.spinner.setVisible(False))
-        worker.finished_signal.connect(thread.quit)
-        worker.finished_signal.connect(worker.deleteLater)
-        thread.finished.connect(thread.deleteLater)
-
-        thread.started.connect(worker.run)
-        thread.start()
+        self.recon_worker.output_signal.connect(self.append_recon_output)
+        self.recon_worker.finished_signal.connect(self._on_recon_finished)
+        
+        self.recon_thread.started.connect(self.recon_worker.run)
+        self.recon_thread.start()
+        
+    def _on_recon_finished(self):
+        """Handle recon completion"""
+        # Update UI
+        self.spinner.setVisible(False)
+        self.reconPage.startButton.setEnabled(True)
+        self.reconPage.stopButton.setEnabled(False)
+        
+        # Clean up thread resources
+        if hasattr(self, 'recon_thread') and self.recon_thread:
+            self.recon_thread.quit()
+            self.recon_worker.deleteLater()
+            self.recon_thread.deleteLater()
+        
+    def stop_recon(self):
+        """Stop reconnaissance"""
+        if hasattr(self, 'recon_worker') and self.recon_worker:
+            self.append_recon_output("[*] Stopping reconnaissance...")
+            self.recon_worker.stop()
+            
+            # Update UI
+            self.reconPage.stopButton.setEnabled(False)
+            
+            # Give some time for the thread to clean up
+            if hasattr(self, 'recon_thread') and self.recon_thread.isRunning():
+                self.recon_thread.quit()
+                self.recon_thread.wait(1000)  # Wait up to 1 second
 
     def start_vuln_scan(self):
         """Start vulnerability scanning"""
@@ -223,57 +252,82 @@ class MainWindow(QtWidgets.QMainWindow):
         """Start network mapping"""
         target = self.networkMapperPage.targetLineEdit.text().strip()
         if not target:
-            self.append_output(self.networkMapperPage.rawOutputTextEdit, "[!] Please enter a valid target network.")
+            self.append_output(self.networkMapperPage.statusTextEdit, "[!] Please enter a valid target.")
             return
             
-        # Get scan options
+        # Get options
         use_traceroute = self.networkMapperPage.tracerouteCheckBox.isChecked()
-        use_arp = self.networkMapperPage.arpScanCheckBox.isChecked()
+        use_arp = self.networkMapperPage.arpCheckBox.isChecked()
         detect_os = self.networkMapperPage.osDetectionCheckBox.isChecked()
         discover_hosts = self.networkMapperPage.hostDiscoveryCheckBox.isChecked()
-        identify_devices = self.networkMapperPage.deviceIdentCheckBox.isChecked()
+        identify_devices = self.networkMapperPage.deviceIdentificationCheckBox.isChecked()
+        
+        # Initialize visualization
+        # For now, clear existing visualization
+        self.networkMapperPage.visualizationWidget.clear()
+        self.networkMapperPage.visualizationWidget.setSceneRect(0, 0, 500, 300)
+        
+        # Clear status text
+        self.networkMapperPage.statusTextEdit.clear()
+        
+        # Update status
+        self.append_output(self.networkMapperPage.statusTextEdit, f"[*] Starting network mapping on {target}")
+        self.append_output(self.networkMapperPage.statusTextEdit, f"[*] Options:")
+        self.append_output(self.networkMapperPage.statusTextEdit, f"    - Traceroute: {'Enabled' if use_traceroute else 'Disabled'}")
+        self.append_output(self.networkMapperPage.statusTextEdit, f"    - ARP: {'Enabled' if use_arp else 'Disabled'}")
+        self.append_output(self.networkMapperPage.statusTextEdit, f"    - OS Detection: {'Enabled' if detect_os else 'Disabled'}")
+        self.append_output(self.networkMapperPage.statusTextEdit, f"    - Host Discovery: {'Enabled' if discover_hosts else 'Disabled'}")
+        self.append_output(self.networkMapperPage.statusTextEdit, f"    - Device Identification: {'Enabled' if identify_devices else 'Disabled'}")
         
         # Update UI
-        self.networkMapperPage.statusLabel.setText("Status: Running")
+        self.networkMapperPage.startButton.setEnabled(False)
+        self.networkMapperPage.stopButton.setEnabled(True)
+        self.networkMapperPage.exportButton.setEnabled(False)
         self.networkMapperPage.progressBar.setValue(0)
-        self.append_output(self.networkMapperPage.rawOutputTextEdit, f"[*] Starting network mapping on: {target}")
-        self.append_output(self.networkMapperPage.rawOutputTextEdit, "[*] Scan options:")
-        self.append_output(self.networkMapperPage.rawOutputTextEdit, f"  - Traceroute: {'Enabled' if use_traceroute else 'Disabled'}")
-        self.append_output(self.networkMapperPage.rawOutputTextEdit, f"  - ARP Scan: {'Enabled' if use_arp else 'Disabled'}")
-        self.append_output(self.networkMapperPage.rawOutputTextEdit, f"  - OS Detection: {'Enabled' if detect_os else 'Disabled'}")
-        self.append_output(self.networkMapperPage.rawOutputTextEdit, f"  - Host Discovery: {'Enabled' if discover_hosts else 'Disabled'}")
-        self.append_output(self.networkMapperPage.rawOutputTextEdit, f"  - Device Identification: {'Enabled' if identify_devices else 'Disabled'}")
+        self.networkMapperPage.statusLabel.setText("Status: Starting...")
         
-        # TODO: Implement actual network mapping functionality
-        # For now, just simulate progress
-        self.network_mapping_thread = QtCore.QThread()
-        self.network_mapping_worker = NetworkMappingWorker(target, self.logger, use_traceroute, use_arp, detect_os, discover_hosts, identify_devices)
-        self.network_mapping_worker.moveToThread(self.network_mapping_thread)
+        # Create thread and worker
+        self.network_thread = QtCore.QThread()
+        self.network_worker = NetworkMappingWorker(
+            target, 
+            self.logger,
+            use_traceroute=use_traceroute,
+            use_arp=use_arp,
+            detect_os=detect_os,
+            discover_hosts=discover_hosts,
+            identify_devices=identify_devices
+        )
+        self.network_worker.moveToThread(self.network_thread)
         
-        self.network_mapping_worker.output_signal.connect(lambda msg: self.append_output(self.networkMapperPage.rawOutputTextEdit, msg))
-        self.network_mapping_worker.progress_signal.connect(self.networkMapperPage.progressBar.setValue)
-        self.network_mapping_worker.status_signal.connect(self.networkMapperPage.statusLabel.setText)
-        self.network_mapping_worker.finished_signal.connect(self.network_mapping_thread.quit)
-        self.network_mapping_worker.finished_signal.connect(self.network_mapping_worker.deleteLater)
-        self.network_mapping_thread.finished.connect(self.network_mapping_thread.deleteLater)
+        # Connect signals
+        self.network_worker.output_signal.connect(lambda msg: self.append_output(self.networkMapperPage.statusTextEdit, msg))
+        self.network_worker.progress_signal.connect(self.networkMapperPage.progressBar.setValue)
+        self.network_worker.status_signal.connect(self.networkMapperPage.statusLabel.setText)
+        self.network_worker.finished_signal.connect(self._on_network_mapping_finished)
         
-        self.network_mapping_thread.started.connect(self.network_mapping_worker.run)
-        self.network_mapping_thread.start()
+        # Start thread
+        self.network_thread.started.connect(self.network_worker.run)
+        self.network_thread.start()
     
     def stop_network_mapping(self):
         """Stop network mapping"""
-        if hasattr(self, 'network_mapping_worker') and self.network_mapping_worker:
-            self.network_mapping_worker.stop()
-            self.append_output(self.networkMapperPage.rawOutputTextEdit, "[*] Stopping network mapping...")
+        if hasattr(self, 'network_worker') and self.network_worker:
+            self.network_worker.stop()
+            self.append_output(self.networkMapperPage.statusTextEdit, "[*] Stopping network mapping...")
             self.networkMapperPage.statusLabel.setText("Status: Stopping")
+            
+            # Give some time for the thread to clean up
+            if hasattr(self, 'network_thread') and self.network_thread.isRunning():
+                self.network_thread.quit()
+                self.network_thread.wait(1000)  # Wait up to 1 second
         else:
-            self.append_output(self.networkMapperPage.rawOutputTextEdit, "[!] No network mapping in progress.")
+            self.append_output(self.networkMapperPage.statusTextEdit, "[!] No network mapping in progress.")
     
     def export_network_map(self):
         """Export network map"""
         # Check if we have results to export
         if not hasattr(self.networkMapperPage, 'networkView') or not self.networkMapperPage.networkView.scene():
-            self.append_output(self.networkMapperPage.rawOutputTextEdit, "[!] No network map to export. Run a scan first.")
+            self.append_output(self.networkMapperPage.statusTextEdit, "[!] No network map to export. Run a scan first.")
             return
             
         # Ask for export format and location
@@ -300,9 +354,9 @@ class MainWindow(QtWidgets.QMainWindow):
             elif "Text" in format_filter:
                 self.export_network_map_text(path)
                 
-            self.append_output(self.networkMapperPage.rawOutputTextEdit, f"[+] Network map exported to: {path}")
+            self.append_output(self.networkMapperPage.statusTextEdit, f"[+] Network map exported to: {path}")
         except Exception as e:
-            self.append_output(self.networkMapperPage.rawOutputTextEdit, f"[!] Error exporting network map: {str(e)}")
+            self.append_output(self.networkMapperPage.statusTextEdit, f"[!] Error exporting network map: {str(e)}")
     
     def export_network_map_image(self, path, format_type):
         """Export network map as image"""
@@ -467,6 +521,19 @@ class MainWindow(QtWidgets.QMainWindow):
         
         if reply == QtWidgets.QMessageBox.StandardButton.Yes:
             self.logger.info("Quitting application")
+            
+            # Force cleanup of any running threads before quitting
+            # This is necessary to prevent the "QThread: Destroyed while thread is still running" error
+            for child in self.findChildren(QtCore.QThread):
+                if child.isRunning():
+                    self.logger.info(f"Waiting for thread to finish: {child.objectName() or 'unnamed thread'}")
+                    child.quit()
+                    child.wait(1000)  # Wait up to 1000ms for the thread to finish
+            
+            # Process any pending events to allow thread cleanup
+            QtCore.QCoreApplication.processEvents()
+            
+            # Now it's safe to quit
             QtWidgets.QApplication.quit()
             
     def execute_command(self):
@@ -775,6 +842,19 @@ class MainWindow(QtWidgets.QMainWindow):
         if hasattr(self.settingsPage, 'bruteForceThreadsSpinBox'):
             self.settingsPage.bruteForceThreadsSpinBox.setValue(3)
 
+    def _on_network_mapping_finished(self):
+        """Clean up after network mapping completes"""
+        # Update UI
+        self.networkMapperPage.startButton.setEnabled(True)
+        self.networkMapperPage.stopButton.setEnabled(False)
+        self.networkMapperPage.exportButton.setEnabled(True)
+        
+        # Clean up thread resources
+        if hasattr(self, 'network_thread') and self.network_thread:
+            self.network_thread.quit()
+            self.network_worker.deleteLater()
+            self.network_thread.deleteLater()
+
 
 class NetworkMappingWorker(QtCore.QObject):
     output_signal = QtCore.pyqtSignal(str)
@@ -915,15 +995,30 @@ class ReconWorker(QtCore.QObject):
         super().__init__()
         self.target = target
         self.logger = logger
+        self.running = False
 
     def run(self):
+        self.running = True
         try:
-            results = recon.run(self.target, self.logger)
-            for line in results:
-                self.output_signal.emit(line)
+            results = []
+            if self.running:
+                results = recon.run(self.target, self.logger)
+            
+            if self.running:
+                for line in results:
+                    self.output_signal.emit(line)
+                    if not self.running:
+                        break
         except Exception as e:
             self.output_signal.emit(f"[!] Error during recon: {str(e)}")
-        self.finished_signal.emit()
+        finally:
+            self.running = False
+            self.finished_signal.emit()
+            
+    def stop(self):
+        """Stop reconnaissance"""
+        self.running = False
+        self.logger.info("Reconnaissance stopped by user")
 
 
 def main():

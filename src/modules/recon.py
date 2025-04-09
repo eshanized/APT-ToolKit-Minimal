@@ -65,6 +65,7 @@ class ReconResult:
     domains: List[DomainInfo] = field(default_factory=list)
     routes: List[Dict[str, Any]] = field(default_factory=list)
     notes: List[str] = field(default_factory=list)
+    end_time: float = 0.0  # New field to track end time
 
     def to_dict(self) -> Dict:
         """Convert to dictionary for serialization"""
@@ -79,12 +80,6 @@ class ReconResult:
     def save_to_file(self, filename: str) -> bool:
         """Save results to a JSON file"""
         try:
-            pass  # Add your intended logic here
-        except Exception as e:
-            logger.error(f"An error occurred: {e}")
-            pass  # Add your intended logic here
-        except Exception as e:
-            logger.error(f"An error occurred: {e}")
             with open(filename, 'w') as f:
                 f.write(self.to_json())
             logger.info(f"Saved reconnaissance results to {filename}")
@@ -92,6 +87,13 @@ class ReconResult:
         except Exception as e:
             logger.error(f"Failed to save results to {filename}: {e}")
             return False
+            
+    def get_duration(self) -> float:
+        """Get scan duration in seconds"""
+        if self.end_time > 0:
+            return self.end_time - self.scan_time
+        else:
+            return time.time() - self.scan_time
 
 
 class ReconModule:
@@ -317,6 +319,9 @@ class ReconModule:
         scan_duration = time.time() - start_time
         result.notes.append(f"Scan completed in {scan_duration:.2f} seconds")
         logger.info(f"Reconnaissance scan of {target} completed in {scan_duration:.2f} seconds")
+        
+        # Set the end time
+        result.end_time = time.time()
         
         return result
     
@@ -836,3 +841,88 @@ class ReconModule:
             return ip.is_private
         except ValueError:
             return False
+
+def run(target, logger=None):
+    """
+    Run reconnaissance on a target and return a list of human-readable text results.
+    This function serves as a bridge between the UI and the ReconModule class.
+    
+    Args:
+        target (str): Target to scan (IP, hostname, domain, CIDR, etc.)
+        logger: Optional logger instance
+        
+    Returns:
+        List[str]: List of human-readable result lines
+    """
+    try:
+        # Initialize the recon module
+        recon_module = ReconModule()
+        
+        # Log the operation
+        if logger:
+            logger.info(f"Starting reconnaissance on {target}")
+        
+        # Run the recon module scan
+        results = []
+        results.append(f"[*] Starting reconnaissance on {target}")
+        
+        # Perform the actual scan
+        scan_result = recon_module.scan(target)
+        
+        # Set the end time
+        scan_result.end_time = time.time()
+        
+        # Process host information
+        if scan_result.hosts:
+            results.append(f"\n[+] Found {len(scan_result.hosts)} hosts:")
+            for host in scan_result.hosts:
+                results.append(f"  - {host.ip_address} ({host.hostname or 'Unknown'})")
+                if host.status:
+                    results.append(f"    Status: {host.status}")
+                if host.open_ports:
+                    results.append(f"    Open ports:")
+                    for port in host.open_ports:
+                        service_info = f"{port.service} {port.version}".strip()
+                        results.append(f"      - {port.port}/{port.protocol}: {service_info}")
+                        if port.banner:
+                            results.append(f"        Banner: {port.banner[:50]}...")
+        else:
+            results.append("[!] No hosts found.")
+            
+        # Process domain information
+        if scan_result.domains:
+            results.append(f"\n[+] Domain information:")
+            for domain in scan_result.domains:
+                results.append(f"  - Domain: {domain.domain}")
+                if domain.registrar:
+                    results.append(f"    Registrar: {domain.registrar}")
+                if domain.creation_date:
+                    results.append(f"    Created: {domain.creation_date}")
+                if domain.expiration_date:
+                    results.append(f"    Expires: {domain.expiration_date}")
+                if domain.name_servers:
+                    results.append(f"    Name servers:")
+                    for ns in domain.name_servers[:5]:  # Limit to first 5
+                        results.append(f"      - {ns}")
+                if domain.dns_records:
+                    results.append(f"    DNS records:")
+                    for record in domain.dns_records[:10]:  # Limit to first 10
+                        results.append(f"      - {record.record_type}: {record.hostname} -> {record.value}")
+                if domain.subdomains:
+                    results.append(f"    Subdomains:")
+                    for subdomain in domain.subdomains[:10]:  # Limit to first 10
+                        results.append(f"      - {subdomain}")
+                        
+        # Add completion message
+        results.append(f"\n[+] Reconnaissance completed successfully in {scan_result.get_duration():.2f} seconds.")
+        
+        if logger:
+            logger.info(f"Reconnaissance on {target} completed.")
+            
+        return results
+        
+    except Exception as e:
+        error_msg = f"Error during reconnaissance: {str(e)}"
+        if logger:
+            logger.error(error_msg)
+        return [f"[!] {error_msg}"]
