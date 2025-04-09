@@ -1,0 +1,46 @@
+general:
+  debug: false
+  log_level: INFO
+  max_threads: 10
+  timeout: 30
+  user_agent: APT-Toolkit Scanner
+modules:
+  brute_force:
+    delay: 0.5
+    enabled: true
+    max_attempts: 1000
+  payload_gen:
+    enabled: true
+    obfuscate: false
+    template_dir: templates
+  recon:
+    dns_servers:
+    - 8.8.8.8
+    - 8.8.4.4
+    enabled: true
+    max_depth: 2
+  vuln_scanner:
+    cve_check: true
+    enabled: true
+    scan_level: medium
+network:
+  default_timeout: 5
+  max_retries: 3
+  proxy:
+    http: ''
+    https: ''
+  use_proxy: false
+paths:
+  logs: logs
+  reports: reports
+  wordlists: src/wordlists
+reporting:
+  format: html
+  include_evidence: true
+  include_remediation: true
+  risk_classification: true
+ui:
+  auto_save: true
+  confirm_actions: true
+  terminal_history: 1000
+  theme: dark

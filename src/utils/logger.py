@@ -1,264 +1,199 @@
-import logging
+"""
+Logger module for the APT toolkit.
+
+This module provides logging functionality for the APT toolkit, including
+configurable log levels, file and console output, and log rotation.
+"""
+
 import os
-import sys
-import time
+import logging
+import logging.handlers
 from datetime import datetime
-from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler
-import json
-import traceback
+from typing import Optional, Dict, Any
 
-class APTLogger:
+# Default log directory
+LOG_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "logs")
+
+# Ensure log directory exists
+os.makedirs(LOG_DIR, exist_ok=True)
+
+# Default log file
+DEFAULT_LOG_FILE = os.path.join(LOG_DIR, "apt_toolkit.log")
+
+# Log format
+LOG_FORMAT = "%(asctime)s [%(levelname)s] [%(name)s] %(message)s"
+DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+
+# Log levels
+LOG_LEVELS = {
+    "debug": logging.DEBUG,
+    "info": logging.INFO,
+    "warning": logging.WARNING,
+    "error": logging.ERROR,
+    "critical": logging.CRITICAL
+}
+
+# Cache for loggers to avoid creating multiple instances
+_loggers: Dict[str, logging.Logger] = {}
+
+
+def get_logger(name: str, log_level: str = "info", log_file: Optional[str] = None) -> logging.Logger:
     """
-    Advanced logging utility for the APT-Toolkit.
-    Provides unified logging capabilities with multiple outputs,
-    log rotation, structured logging, and more.
+    Get a logger instance with the specified name and configuration.
+
+    Args:
+        name: The name of the logger.
+        log_level: The log level (debug, info, warning, error, critical).
+        log_file: The log file path. If None, uses the default log file.
+
+    Returns:
+        A configured logger instance.
     """
+    # Check if logger already exists in cache
+    if name in _loggers:
+        return _loggers[name]
+
+    # Create logger
+    logger = logging.getLogger(name)
     
-    # Log levels dictionary for easy conversion between names and values
-    LOG_LEVELS = {
-        "DEBUG": logging.DEBUG,
-        "INFO": logging.INFO,
-        "WARNING": logging.WARNING,
-        "ERROR": logging.ERROR,
-        "CRITICAL": logging.CRITICAL
-    }
+    # Set log level
+    level = LOG_LEVELS.get(log_level.lower(), logging.INFO)
+    logger.setLevel(level)
     
-    # ANSI color codes for terminal output
-    COLORS = {
-        "DEBUG": "\033[36m",      # Cyan
-        "INFO": "\033[32m",       # Green
-        "WARNING": "\033[33m",    # Yellow
-        "ERROR": "\033[31m",      # Red
-        "CRITICAL": "\033[35m",   # Magenta
-        "RESET": "\033[0m"        # Reset
-    }
-    
-    def __init__(self, 
-                log_file=None, 
-                log_level="INFO", 
-                log_to_console=True,
-                log_to_file=True,
-                enable_json=False,
-                max_file_size=10485760,  # 10MB
-                backup_count=5,
-                use_time_rotation=False,
-                module_name=None):
-        """
-        Initialize the APT-Toolkit logger with configurable settings
-        
-        Args:
-            log_file (str, optional): Path to log file. If None, uses apt-toolkit.log in logs directory.
-            log_level (str, optional): Minimum log level to record. Defaults to "INFO".
-            log_to_console (bool, optional): Enable console logging. Defaults to True.
-            log_to_file (bool, optional): Enable file logging. Defaults to True.
-            enable_json (bool, optional): Enable JSON formatting for log file. Defaults to False.
-            max_file_size (int, optional): Maximum size of log file in bytes before rotation. Defaults to 10MB.
-            backup_count (int, optional): Number of backup logs to keep. Defaults to 5.
-            use_time_rotation (bool, optional): Use time-based rotation instead of size-based. Defaults to False.
-            module_name (str, optional): Name of the module for specialized logging. Defaults to None.
-        """
-        self.log_to_console = log_to_console
-        self.log_to_file = log_to_file
-        self.enable_json = enable_json
-        self.module_name = module_name
-        
-        # Configure base logger
-        if module_name:
-            self.logger = logging.getLogger(f"apt-toolkit.{module_name}")
-        else:
-            self.logger = logging.getLogger("apt-toolkit")
-        
-        # Set log level
-        self.set_level(log_level)
-        
-        # Clear existing handlers to avoid duplication
-        self.logger.handlers = []
-        
-        # Ensure logs directory exists if logging to file
-        if log_to_file:
-            if log_file is None:
-                logs_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'logs')
-                os.makedirs(logs_dir, exist_ok=True)
-                log_file = os.path.join(logs_dir, 'apt-toolkit.log')
-            else:
-                os.makedirs(os.path.dirname(os.path.abspath(log_file)), exist_ok=True)
-                
-            self.log_file = log_file
-            self._setup_file_handler(max_file_size, backup_count, use_time_rotation)
-            
-        # Set up console handler if enabled
-        if log_to_console:
-            self._setup_console_handler()
-            
-        # Set propagate to False to avoid double logging if using child loggers
-        self.logger.propagate = False
-            
-    def _setup_console_handler(self):
-        """Set up a console handler with colored output"""
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    # Avoid adding handlers multiple times
+    if not logger.handlers:
+        # Create console handler
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(level)
+        console_formatter = logging.Formatter(LOG_FORMAT, DATE_FORMAT)
         console_handler.setFormatter(console_formatter)
-        self.logger.addHandler(console_handler)
+        logger.addHandler(console_handler)
         
-    def _setup_file_handler(self, max_file_size, backup_count, use_time_rotation):
-        """Set up a file handler with rotation capabilities"""
-        if use_time_rotation:
-            # Use time-based rotation (daily)
-            file_handler = TimedRotatingFileHandler(
-                self.log_file,
-                when='midnight',
-                interval=1,
-                backupCount=backup_count
-            )
-        else:
-            # Use size-based rotation
-            file_handler = RotatingFileHandler(
-                self.log_file,
-                maxBytes=max_file_size,
-                backupCount=backup_count
-            )
-            
-        if self.enable_json:
-            file_handler.setFormatter(self.JsonFormatter())
-        else:
-            file_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(pathname)s:%(lineno)d - %(message)s')
-            file_handler.setFormatter(file_formatter)
-            
-        self.logger.addHandler(file_handler)
+        # Create file handler
+        log_path = log_file or DEFAULT_LOG_FILE
+        file_handler = logging.handlers.RotatingFileHandler(
+            log_path, maxBytes=10*1024*1024, backupCount=5, encoding="utf-8"
+        )
+        file_handler.setLevel(level)
+        file_formatter = logging.Formatter(LOG_FORMAT, DATE_FORMAT)
+        file_handler.setFormatter(file_formatter)
+        logger.addHandler(file_handler)
     
-    def set_level(self, level):
-        """Set the logging level from string or integer"""
-        if isinstance(level, str):
-            if level.upper() in self.LOG_LEVELS:
-                self.logger.setLevel(self.LOG_LEVELS[level.upper()])
-            else:
-                self.logger.setLevel(logging.INFO)
-                self.logger.warning(f"Invalid log level: {level}, defaulting to INFO")
-        else:
-            # Assume it's already a proper log level integer
-            self.logger.setLevel(level)
+    # Cache logger
+    _loggers[name] = logger
     
-    def debug(self, message, *args, **kwargs):
-        """Log a debug message"""
-        self._log_with_color(logging.DEBUG, message, *args, **kwargs)
+    return logger
+
+
+def get_module_logger(module_name: str, log_level: str = "info", log_file: Optional[str] = None) -> logging.Logger:
+    """
+    Get a logger specifically configured for a module.
+
+    Args:
+        module_name: The name of the module.
+        log_level: The log level (debug, info, warning, error, critical).
+        log_file: The log file path. If None, uses the default log file.
+
+    Returns:
+        A configured logger instance for the module.
+    """
+    # Use a consistent prefix for module loggers
+    logger_name = f"module.{module_name}"
     
-    def info(self, message, *args, **kwargs):
-        """Log an info message"""
-        self._log_with_color(logging.INFO, message, *args, **kwargs)
+    # Get the logger using the standard get_logger function
+    return get_logger(logger_name, log_level, log_file)
+
+
+def set_log_level(logger_name: str, level: str) -> None:
+    """
+    Set the log level for a specific logger.
+
+    Args:
+        logger_name: The name of the logger.
+        level: The log level (debug, info, warning, error, critical).
+    """
+    if logger_name in _loggers:
+        log_level = LOG_LEVELS.get(level.lower(), logging.INFO)
+        _loggers[logger_name].setLevel(log_level)
+        for handler in _loggers[logger_name].handlers:
+            handler.setLevel(log_level)
+
+
+def clear_logs() -> None:
+    """Clear all log files."""
+    for filename in os.listdir(LOG_DIR):
+        if filename.endswith(".log"):
+            try:
+                os.remove(os.path.join(LOG_DIR, filename))
+            except (OSError, PermissionError) as e:
+                print(f"Error clearing log file {filename}: {e}")
+
+
+def get_log_file_path(logger_name: str = None) -> str:
+    """
+    Get the path to the log file for a specific logger.
+
+    Args:
+        logger_name: The name of the logger. If None, returns the default log file path.
+
+    Returns:
+        The path to the log file.
+    """
+    if logger_name and logger_name in _loggers:
+        for handler in _loggers[logger_name].handlers:
+            if isinstance(handler, logging.FileHandler):
+                return handler.baseFilename
+    return DEFAULT_LOG_FILE
+
+
+def configure_logger(config: Dict[str, Any]) -> None:
+    """
+    Configure the logger based on a configuration dictionary.
+
+    Args:
+        config: A dictionary containing logger configuration.
+    """
+    log_level = config.get("log_level", "info")
+    log_file = config.get("log_file", DEFAULT_LOG_FILE)
+    log_to_console = config.get("log_to_console", True)
+    log_to_file = config.get("log_to_file", True)
     
-    def warning(self, message, *args, **kwargs):
-        """Log a warning message"""
-        self._log_with_color(logging.WARNING, message, *args, **kwargs)
+    # Configure root logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(LOG_LEVELS.get(log_level.lower(), logging.INFO))
     
-    def error(self, message, *args, **kwargs):
-        """Log an error message"""
-        self._log_with_color(logging.ERROR, message, *args, **kwargs)
+    # Remove existing handlers
+    for handler in root_logger.handlers[:]:
+        root_logger.removeHandler(handler)
     
-    def critical(self, message, *args, **kwargs):
-        """Log a critical message"""
-        self._log_with_color(logging.CRITICAL, message, *args, **kwargs)
-        
-    def exception(self, message, *args, exc_info=True, **kwargs):
-        """Log an exception with traceback"""
-        self._log_with_color(logging.ERROR, message, *args, exc_info=exc_info, **kwargs)
+    # Add console handler if enabled
+    if log_to_console:
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(LOG_LEVELS.get(log_level.lower(), logging.INFO))
+        console_formatter = logging.Formatter(LOG_FORMAT, DATE_FORMAT)
+        console_handler.setFormatter(console_formatter)
+        root_logger.addHandler(console_handler)
     
-    def _log_with_color(self, level, message, *args, **kwargs):
-        """Internal method to handle colored logging for console output"""
-        level_name = logging.getLevelName(level)
-        
-        # Only colorize if logging to console
-        if self.log_to_console and sys.stdout.isatty():
-            color_code = self.COLORS.get(level_name, self.COLORS["RESET"])
-            colored_message = f"{color_code}{message}{self.COLORS['RESET']}"
-            self.logger.log(level, colored_message, *args, **kwargs)
-        else:
-            self.logger.log(level, message, *args, **kwargs)
-            
-    def log_dict(self, level, data_dict, message=None):
-        """Log a dictionary at the specified level, optionally with a message"""
-        if message:
-            log_message = f"{message}: {json.dumps(data_dict, default=str)}"
-        else:
-            log_message = json.dumps(data_dict, default=str)
-            
-        self._log_with_color(self.LOG_LEVELS.get(level.upper(), logging.INFO), log_message)
-            
-    class JsonFormatter(logging.Formatter):
-        """Custom formatter for JSON structured logging"""
-        def format(self, record):
-            log_entry = {
-                "timestamp": datetime.fromtimestamp(record.created).isoformat(),
-                "level": record.levelname,
-                "logger": record.name,
-                "message": record.getMessage(),
-                "module": record.module,
-                "function": record.funcName,
-                "line": record.lineno
-            }
-            
-            # Add exception info if available
-            if record.exc_info:
-                log_entry["exception"] = {
-                    "type": record.exc_info[0].__name__,
-                    "value": str(record.exc_info[1]),
-                    "traceback": traceback.format_exception(*record.exc_info)
-                }
-                
-            return json.dumps(log_entry)
-            
-    def get_logger(self):
-        """Get the underlying logger instance"""
-        return self.logger
-        
-    def capture_warnings(self, capture=True):
-        """Capture Python warnings in the logging system"""
-        logging.captureWarnings(capture)
-
-
-# Create a default logger instance for easy import and use
-default_logger = APTLogger()
-
-# Convenience functions using the default logger
-def debug(message, *args, **kwargs):
-    default_logger.debug(message, *args, **kwargs)
-
-def info(message, *args, **kwargs):
-    default_logger.info(message, *args, **kwargs)
-
-def warning(message, *args, **kwargs):
-    default_logger.warning(message, *args, **kwargs)
-
-def error(message, *args, **kwargs):
-    default_logger.error(message, *args, **kwargs)
-
-def critical(message, *args, **kwargs):
-    default_logger.critical(message, *args, **kwargs)
-
-def exception(message, *args, **kwargs):
-    default_logger.exception(message, *args, **kwargs)
-
-def get_module_logger(module_name, **kwargs):
-    """Create a new logger for a specific module with optional custom settings"""
-    return APTLogger(module_name=module_name, **kwargs)
+    # Add file handler if enabled
+    if log_to_file:
+        os.makedirs(os.path.dirname(log_file), exist_ok=True)
+        file_handler = logging.handlers.RotatingFileHandler(
+            log_file, maxBytes=10*1024*1024, backupCount=5, encoding="utf-8"
+        )
+        file_handler.setLevel(LOG_LEVELS.get(log_level.lower(), logging.INFO))
+        file_formatter = logging.Formatter(LOG_FORMAT, DATE_FORMAT)
+        file_handler.setFormatter(file_formatter)
+        root_logger.addHandler(file_handler)
+    
+    # Clear logger cache to force reconfiguration
+    _loggers.clear()
 
 
 if __name__ == "__main__":
     # Example usage
-    logger = APTLogger(log_level="DEBUG", enable_json=True)
+    logger = get_logger("LoggerTest")
     logger.debug("This is a debug message")
     logger.info("This is an info message")
     logger.warning("This is a warning message")
     logger.error("This is an error message")
-    
-    try:
-        1/0
-    except Exception as e:
-        logger.exception(f"Caught an exception: {e}")
-        
-    # Log structured data
-    scan_results = {
-        "target": "192.168.1.1",
-        "ports": [22, 80, 443],
-        "vulnerabilities": ["CVE-2023-12345", "CVE-2023-67890"]
-    }
-    logger.log_dict("INFO", scan_results, "Scan completed")
+    logger.critical("This is a critical message")
