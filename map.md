@@ -10,10 +10,10 @@
 |-----------------------------------------------|---------|
 | Create `src/utils/logger.py`                  | ✅ Done |
 | Implement `src/core/engine.py`                | ✅ Done |
-| Design `src/core/dispatcher.py`               | ☐ Todo  |
-| Add `src/utils/helpers.py`                    | ☐ Todo  |
-| Create `src/utils/config.py`                  | ☐ Todo  |
-| Add `src/core/plugin_loader.py` *(optional)*  | ☐ Todo  |
+| Design `src/core/dispatcher.py`               | ✅ Done  |
+| Add `src/utils/helpers.py`                    | ✅ Done  |
+| Create `src/utils/config.py`                  | ✅ Done  |
+| Add `src/core/plugin_loader.py` *(optional)*  | ✅ Done  |
 
 ---
 
@@ -21,10 +21,10 @@
 
 | Task                                          | Status  |
 |-----------------------------------------------|---------|
-| Build `src/modules/recon.py`                  | ☐ Todo  |
-| Build `src/modules/brute_force.py`            | ☐ Todo  |
-| Create `src/tests/test_recon.py`              | ☐ Todo  |
-| Build `src/modules/report_gen.py`             | ☐ Todo  |
+| Build `src/modules/recon.py`                  | ✅ Done  |
+| Build `src/modules/brute_force.py`            | ✅ Done  |
+| Create `src/tests/test_recon.py`              | ✅ Done  |
+| Build `src/modules/report_gen.py`             | ✅ Done  |
 
 ---
 
