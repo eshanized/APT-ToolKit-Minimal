@@ -10,60 +10,68 @@ from PyQt6 import QtWidgets, uic, QtGui, QtCore, QtPrintSupport
 from modules import recon
 from utils.logger import get_logger
 from src.modules.network_mapper import NetworkMapper, NetworkNode, NetworkLink, NetworkMapResult
+from src.utils.check_dependencies import check_nmap_installation, get_nmap_installation_instructions
 
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
+        """Initialize the main window"""
         super().__init__()
-
-        # Load main window UI
-        uic.loadUi("src/ui/main_window.ui", self)
-
-        # Load stacked pages
+        
+        # Load the UI from the .ui file
+        self.ui = uic.loadUi("src/ui/main_window.ui", self)
+        
+        # Load additional UI pages
         self.reconPage = uic.loadUi("src/ui/recon.ui")
-        self.networkMapperPage = uic.loadUi("src/ui/network_mapper.ui")
-        self.serviceEnumPage = QtWidgets.QWidget()    # Placeholder until UI file is created
-        self.scanResultPage = uic.loadUi("src/ui/scan_result.ui")
-        self.webScannerPage = QtWidgets.QWidget()     # Placeholder until UI file is created
-        self.vulnScannerPage = uic.loadUi("src/ui/vuln_scanner.ui")
+        self.vulnScanPage = uic.loadUi("src/ui/vuln_scan.ui")
         self.bruteForceePage = uic.loadUi("src/ui/brute_force.ui")
-        self.authBypassPage = QtWidgets.QWidget()     # Placeholder until UI file is created
         self.payloadGenPage = uic.loadUi("src/ui/payload_gen.ui")
         self.exploitExecPage = uic.loadUi("src/ui/exploit_exec.ui")
-        self.reportPage = uic.loadUi("src/ui/report.ui")
-        self.settingsPage = uic.loadUi("src/ui/settings.ui")
-        self.terminalPage = uic.loadUi("src/ui/terminal.ui")
+        self.networkMapperPage = uic.loadUi("src/ui/network_mapper.ui")
         self.logsPage = uic.loadUi("src/ui/logs.ui")
-
-        # Add to stacked widget
+        self.terminalPage = uic.loadUi("src/ui/terminal.ui")
+        self.settingsPage = uic.loadUi("src/ui/settings.ui")
+        self.reportPage = uic.loadUi("src/ui/report.ui")
+        
+        # Add pages to the stacked widget
+        self.stackedWidget = self.ui.findChild(QtWidgets.QStackedWidget, "stackedWidget")
         self.stackedWidget.addWidget(self.reconPage)
-        self.stackedWidget.addWidget(self.networkMapperPage)
-        self.stackedWidget.addWidget(self.serviceEnumPage)
-        self.stackedWidget.addWidget(self.scanResultPage)
-        self.stackedWidget.addWidget(self.webScannerPage)
-        self.stackedWidget.addWidget(self.vulnScannerPage)
+        self.stackedWidget.addWidget(self.vulnScanPage)
         self.stackedWidget.addWidget(self.bruteForceePage)
-        self.stackedWidget.addWidget(self.authBypassPage)
         self.stackedWidget.addWidget(self.payloadGenPage)
         self.stackedWidget.addWidget(self.exploitExecPage)
-        self.stackedWidget.addWidget(self.reportPage)
-        self.stackedWidget.addWidget(self.settingsPage)
-        self.stackedWidget.addWidget(self.terminalPage)
+        self.stackedWidget.addWidget(self.networkMapperPage)
         self.stackedWidget.addWidget(self.logsPage)
-
-        # Connect dashboard module buttons to stacked pages
+        self.stackedWidget.addWidget(self.terminalPage)
+        self.stackedWidget.addWidget(self.settingsPage)
+        self.stackedWidget.addWidget(self.reportPage)
+        
+        # Set up the toolbar icons and connect them to functions
+        self.reconButton = self.ui.findChild(QtWidgets.QToolButton, "reconButton")
+        self.vulnScanButton = self.ui.findChild(QtWidgets.QToolButton, "vulnScanButton")
+        self.bruteForceButton = self.ui.findChild(QtWidgets.QToolButton, "bruteForceButton")
+        self.payloadGenButton = self.ui.findChild(QtWidgets.QToolButton, "payloadGenButton")
+        self.exploitExecButton = self.ui.findChild(QtWidgets.QToolButton, "exploitExecButton")
+        self.networkMapperButton = self.ui.findChild(QtWidgets.QToolButton, "networkMapperButton")
+        self.logsButton = self.ui.findChild(QtWidgets.QToolButton, "logsButton")
+        self.terminalButton = self.ui.findChild(QtWidgets.QToolButton, "terminalButton")
+        self.settingsButton = self.ui.findChild(QtWidgets.QToolButton, "settingsButton")
+        self.reportButton = self.ui.findChild(QtWidgets.QToolButton, "reportButton")
+        
+        # Connect toolbar buttons to switch pages
         self.reconButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.reconPage))
-        self.networkMapperButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.networkMapperPage))
-        self.serviceEnumButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.serviceEnumPage))
-        self.scanEngineButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.scanResultPage))
-        self.webScannerButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.webScannerPage))
-        self.vulnScannerButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.vulnScannerPage))
+        self.vulnScanButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.vulnScanPage))
         self.bruteForceButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.bruteForceePage))
-        self.authBypassButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.authBypassPage))
         self.payloadGenButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.payloadGenPage))
         self.exploitExecButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.exploitExecPage))
-        self.reportGenButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.reportPage))
+        self.networkMapperButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.networkMapperPage))
+        self.logsButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.logsPage))
+        self.terminalButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.terminalPage))
         self.settingsButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.settingsPage))
+        self.reportButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.reportPage))
+        
+        # Connect the nmap options - Checkbox to enable/disable script line edit
+        self.networkMapperPage.scriptScanCheckBox.toggled.connect(self.toggle_nmap_script_field)
         
         # Connect menu actions
         self.actionLogs.triggered.connect(lambda: self.logsDockWidget.setVisible(not self.logsDockWidget.isVisible()))
@@ -94,7 +102,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionService_Enumeration.triggered.connect(lambda: self.stackedWidget.setCurrentWidget(self.serviceEnumPage))
         self.actionScan_Engine.triggered.connect(lambda: self.stackedWidget.setCurrentWidget(self.scanResultPage))
         self.actionWeb_Scanner.triggered.connect(lambda: self.stackedWidget.setCurrentWidget(self.webScannerPage))
-        self.actionVulnerability_Scanner.triggered.connect(lambda: self.stackedWidget.setCurrentWidget(self.vulnScannerPage))
+        self.actionVulnerability_Scanner.triggered.connect(lambda: self.stackedWidget.setCurrentWidget(self.vulnScanPage))
         self.actionBrute_Force.triggered.connect(lambda: self.stackedWidget.setCurrentWidget(self.bruteForceePage))
         self.actionAuth_Bypass.triggered.connect(lambda: self.stackedWidget.setCurrentWidget(self.authBypassPage))
         self.actionPayload_Generator.triggered.connect(lambda: self.stackedWidget.setCurrentWidget(self.payloadGenPage))
@@ -133,8 +141,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.saveLogsButton.clicked.connect(self.export_logs)
         
         # Connect Vulnerability Scanner buttons
-        self.vulnScannerPage.startButton.clicked.connect(self.start_vuln_scan)
-        self.vulnScannerPage.stopButton.clicked.connect(self.stop_vuln_scan)
+        self.vulnScanPage.startButton.clicked.connect(self.start_vuln_scan)
+        self.vulnScanPage.stopButton.clicked.connect(self.stop_vuln_scan)
         
         # Connect Brute Force buttons
         self.bruteForceePage.startButton.clicked.connect(self.start_brute_force)
@@ -374,17 +382,17 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def start_vuln_scan(self):
         """Start vulnerability scanning"""
-        target = self.vulnScannerPage.targetLineEdit.text().strip()
+        target = self.vulnScanPage.targetLineEdit.text().strip()
         if not target:
-            self.append_output(self.vulnScannerPage.statusTextEdit, "[!] Please enter a valid target.")
+            self.append_output(self.vulnScanPage.statusTextEdit, "[!] Please enter a valid target.")
             return
             
-        self.append_output(self.vulnScannerPage.statusTextEdit, f"[*] Starting vulnerability scan on: {target}")
+        self.append_output(self.vulnScanPage.statusTextEdit, f"[*] Starting vulnerability scan on: {target}")
         # Implement actual vulnerability scanning functionality
         
     def stop_vuln_scan(self):
         """Stop vulnerability scanning"""
-        self.append_output(self.vulnScannerPage.statusTextEdit, "[*] Stopping vulnerability scan...")
+        self.append_output(self.vulnScanPage.statusTextEdit, "[*] Stopping vulnerability scan...")
         # Implement stop functionality
         
     def start_brute_force(self):
@@ -439,7 +447,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.append_output(self.networkMapperPage.rawTextEdit, "[!] Invalid target format. Please enter a valid IP address, domain, or hostname.")
             return
             
-        # Get options from the actual UI checkboxes
+        # Get options from the actual UI checkboxes - Basic options
         use_traceroute = self.networkMapperPage.tracerouteCheckBox.isChecked()
         use_arp = self.networkMapperPage.arpCheckBox.isChecked()
         detect_os = self.networkMapperPage.osDetectionCheckBox.isChecked()
@@ -447,6 +455,30 @@ class MainWindow(QtWidgets.QMainWindow):
         identify_devices = self.networkMapperPage.deviceIdentificationCheckBox.isChecked()
         save_results = self.networkMapperPage.saveResultsCheckBox.isChecked()
         use_nmap = self.networkMapperPage.nmapScanCheckBox.isChecked()
+        
+        # Check if nmap is installed before proceeding with nmap scanning
+        if use_nmap:
+            system_nmap, python_nmap, error_message = check_nmap_installation()
+            
+            if not (system_nmap and python_nmap):
+                use_nmap = False
+                self.append_output(self.networkMapperPage.rawTextEdit, f"[!] Nmap scan disabled: {error_message}")
+                self.append_output(self.networkMapperPage.rawTextEdit, f"[!] Falling back to basic network mapping without nmap.")
+                self.networkMapperPage.nmapScanCheckBox.setChecked(False)
+                
+                # Show dialog with installation instructions
+                msg_box = QtWidgets.QMessageBox()
+                msg_box.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                msg_box.setWindowTitle("Nmap Not Available")
+                
+                if not system_nmap:
+                    instructions = get_nmap_installation_instructions()
+                    msg_box.setText(f"Nmap is not installed on your system.\n\nTo install nmap, run:\n{instructions}")
+                else:
+                    msg_box.setText("Python-nmap library is not installed.\n\nTo install it, run:\npip install python-nmap")
+                
+                msg_box.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Ok)
+                msg_box.exec()
         
         # Get depth setting
         depth = self.networkMapperPage.depthComboBox.currentText()
@@ -473,6 +505,66 @@ class MainWindow(QtWidgets.QMainWindow):
         self.append_output(self.networkMapperPage.rawTextEdit, f"    - Save Results: {'Enabled' if save_results else 'Disabled'}")
         self.append_output(self.networkMapperPage.rawTextEdit, f"    - Nmap Scan: {'Enabled' if use_nmap else 'Disabled'}")
         
+        # Collect advanced nmap options if nmap is enabled
+        nmap_options = {}
+        if use_nmap and hasattr(self.networkMapperPage, 'nmapOptionsTabWidget'):
+            # Scan types
+            nmap_options["tcp_syn_scan"] = self.networkMapperPage.tcpSynScanCheckBox.isChecked()
+            nmap_options["tcp_connect_scan"] = self.networkMapperPage.tcpConnectScanCheckBox.isChecked()
+            nmap_options["udp_scan"] = self.networkMapperPage.udpScanCheckBox.isChecked()
+            nmap_options["ping_scan"] = self.networkMapperPage.pingCheckBox.isChecked()
+            nmap_options["fin_scan"] = self.networkMapperPage.finScanCheckBox.isChecked()
+            nmap_options["null_scan"] = self.networkMapperPage.nullScanCheckBox.isChecked()
+            nmap_options["xmas_scan"] = self.networkMapperPage.xmasScanCheckBox.isChecked()
+            nmap_options["ip_protocol_scan"] = self.networkMapperPage.ipProtocolScanCheckBox.isChecked()
+            
+            # Discovery options
+            nmap_options["disable_ping"] = self.networkMapperPage.disablePingCheckBox.isChecked()
+            nmap_options["tcp_syn_ping"] = self.networkMapperPage.tcpSynPingCheckBox.isChecked()
+            nmap_options["tcp_ack_ping"] = self.networkMapperPage.tcpAckPingCheckBox.isChecked()
+            nmap_options["udp_ping"] = self.networkMapperPage.udpPingCheckBox.isChecked()
+            nmap_options["sctp_ping"] = self.networkMapperPage.sctpPingCheckBox.isChecked()
+            nmap_options["icmp_echo_ping"] = self.networkMapperPage.icmpEchoPingCheckBox.isChecked()
+            
+            # Advanced options
+            port_range = self.networkMapperPage.portRangeLineEdit.text().strip()
+            if port_range:
+                nmap_options["port_range"] = port_range
+                self.append_output(self.networkMapperPage.rawTextEdit, f"    - Port Range: {port_range}")
+                
+            # Timing template
+            timing_idx = self.networkMapperPage.timingComboBox.currentIndex()
+            nmap_options["timing_template"] = timing_idx
+            self.append_output(self.networkMapperPage.rawTextEdit, f"    - Timing Template: T{timing_idx}")
+            
+            # Script scan
+            script_scan = self.networkMapperPage.scriptScanCheckBox.isChecked()
+            nmap_options["script_scan"] = script_scan
+            if script_scan:
+                self.append_output(self.networkMapperPage.rawTextEdit, f"    - Script Scan: Enabled")
+                script_args = self.networkMapperPage.scriptLineEdit.text().strip()
+                if script_args:
+                    nmap_options["script_args"] = script_args
+                    self.append_output(self.networkMapperPage.rawTextEdit, f"    - Script Arguments: {script_args}")
+            
+            # Version detection
+            version_detection = self.networkMapperPage.versionDetectionCheckBox.isChecked()
+            nmap_options["version_detection"] = version_detection
+            if version_detection:
+                self.append_output(self.networkMapperPage.rawTextEdit, f"    - Version Detection: Enabled")
+                intensity_idx = self.networkMapperPage.versionIntensityComboBox.currentIndex()
+                nmap_options["version_intensity"] = intensity_idx
+                self.append_output(self.networkMapperPage.rawTextEdit, f"    - Version Intensity: {intensity_idx}")
+            
+            # OS Detection
+            nmap_options["os_detection"] = detect_os
+            
+            # Custom args
+            custom_args = self.networkMapperPage.customArgsLineEdit.text().strip()
+            if custom_args:
+                nmap_options["custom_args"] = custom_args
+                self.append_output(self.networkMapperPage.rawTextEdit, f"    - Custom Arguments: {custom_args}")
+        
         # Update UI
         self.networkMapperPage.startButton.setEnabled(False)
         self.networkMapperPage.stopButton.setEnabled(True)
@@ -495,6 +587,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.network_worker.scan_depth = depth
         # Set nmap usage
         self.network_worker.use_nmap = use_nmap
+        # Set nmap options
+        self.network_worker.nmap_options = nmap_options
         
         self.network_worker.moveToThread(self.network_thread)
         
@@ -1405,6 +1499,13 @@ class MainWindow(QtWidgets.QMainWindow):
         
         return result
 
+    def toggle_nmap_script_field(self):
+        """Toggle the script line edit based on the script scan check box"""
+        if self.networkMapperPage.scriptScanCheckBox.isChecked():
+            self.networkMapperPage.scriptLineEdit.setEnabled(True)
+        else:
+            self.networkMapperPage.scriptLineEdit.setEnabled(False)
+
 
 class NetworkMappingWorker(QtCore.QObject):
     output_signal = QtCore.pyqtSignal(str)
@@ -1423,6 +1524,7 @@ class NetworkMappingWorker(QtCore.QObject):
         self.identify_devices = identify_devices
         self.running = False
         self.use_nmap = True  # Default to True, can be overridden
+        self.nmap_options = {}  # Advanced nmap options
         # Get scan depth from active combobox
         self.scan_depth = "Standard"  # Default
         
@@ -1473,6 +1575,7 @@ class NetworkMappingWorker(QtCore.QObject):
                                "low" if self.scan_depth == "Basic (Fast)" else "medium",
                 "use_nmap": self.use_nmap,  # Use the instance variable
                 "detect_os": self.detect_os,
+                "nmap_options": self.nmap_options if hasattr(self, 'nmap_options') else {}
             }
             
             # Status updates

@@ -243,7 +243,7 @@ class NetworkMapper:
                 self._log_callback(f"[*] Starting Nmap scan on {target_network}")
             
             # Run nmap scan
-            hosts_data = self._run_nmap_scan(target_network, detail_level)
+            hosts_data = self._run_nmap_scan(target_network, detail_level, kwargs.get("nmap_options", {}))
             
             # Process nmap data into nodes
             for host_ip, host_data in hosts_data.items():
@@ -772,13 +772,14 @@ class NetworkMapper:
         # In a real implementation, you would use a library like manuf or a MAC vendor API
         return ""
 
-    def _run_nmap_scan(self, target: str, detail_level: str = "medium") -> Dict[str, Dict]:
+    def _run_nmap_scan(self, target: str, detail_level: str = "medium", scan_options: Dict = None) -> Dict[str, Dict]:
         """
         Run an nmap scan on the target.
         
         Args:
             target: Target to scan (IP, CIDR, hostname)
             detail_level: Scan detail level (low, medium, high)
+            scan_options: Dictionary containing advanced nmap scan options
             
         Returns:
             Dict[str, Dict]: Dictionary mapping IP addresses to nmap scan results
@@ -786,7 +787,7 @@ class NetworkMapper:
         if self._log_callback:
             self._log_callback(f"[*] Running nmap scan on {target} with {detail_level} detail level")
         
-        # Configure scan arguments based on detail level
+        # Base arguments depending on detail level
         if detail_level == "low":
             # Fast scan with ping discovery
             args = "-sn"  # Ping scan only
@@ -797,9 +798,99 @@ class NetworkMapper:
             # Comprehensive scan
             args = "-sS -sV -O -A --top-ports 1000"  # SYN scan with service detection, OS detection, and script scanning
         
+        # If scan options are provided, build custom arguments
+        if scan_options:
+            # Reset args as we'll build them from scratch
+            args = ""
+            
+            # Scan types
+            if scan_options.get("tcp_syn_scan"):
+                args += " -sS"
+            if scan_options.get("tcp_connect_scan"):
+                args += " -sT"
+            if scan_options.get("udp_scan"):
+                args += " -sU"
+            if scan_options.get("ping_scan"):
+                args += " -sn"
+            if scan_options.get("fin_scan"):
+                args += " -sF"
+            if scan_options.get("null_scan"):
+                args += " -sN"
+            if scan_options.get("xmas_scan"):
+                args += " -sX"
+            if scan_options.get("idle_scan") and scan_options.get("idle_zombie"):
+                zombie = self._validate_ip(scan_options.get('idle_zombie', ''))
+                if zombie:
+                    args += f" -sI {zombie}"
+            if scan_options.get("ip_protocol_scan"):
+                args += " -sO"
+                
+            # Discovery options
+            if scan_options.get("disable_ping"):
+                args += " -Pn"
+            if scan_options.get("tcp_syn_ping"):
+                args += " -PS"
+            if scan_options.get("tcp_ack_ping"):
+                args += " -PA"
+            if scan_options.get("udp_ping"):
+                args += " -PU"
+            if scan_options.get("sctp_ping"):
+                args += " -PY"
+            if scan_options.get("icmp_echo_ping"):
+                args += " -PE"
+                
+            # Advanced options
+            if scan_options.get("port_range"):
+                port_range = self._validate_port_range(scan_options.get('port_range', ''))
+                if port_range:
+                    args += f" -p {port_range}"
+            
+            # Timing template
+            if scan_options.get("timing_template") is not None:
+                timing = scan_options.get("timing_template")
+                if 0 <= timing <= 5:
+                    args += f" -T{timing}"
+            
+            # Script scan
+            if scan_options.get("script_scan"):
+                if scan_options.get("script_args"):
+                    script_args = self._validate_script_args(scan_options.get('script_args', ''))
+                    if script_args:
+                        args += f" --script={script_args}"
+                else:
+                    args += " -sC"  # Default scripts
+            
+            # Version detection
+            if scan_options.get("version_detection"):
+                args += " -sV"
+                if scan_options.get("version_intensity") is not None:
+                    intensity = scan_options.get("version_intensity")
+                    if 0 <= intensity <= 9:
+                        args += f" --version-intensity {intensity}"
+            
+            # OS Detection if requested
+            if scan_options.get("os_detection"):
+                args += " -O"
+            
+            # Custom arguments (overrides everything if specified, but validate first)
+            if scan_options.get("custom_args"):
+                custom_args = self._validate_custom_args(scan_options.get('custom_args', ''))
+                if custom_args:
+                    args = custom_args
+        
+        # Trim leading/trailing whitespace
+        args = args.strip()
+        
         # Log the nmap command
         if self._log_callback:
             self._log_callback(f"[*] Running nmap command: nmap {args} {target}")
+            
+        # Make sure the target is sanitized
+        target = self._validate_target(target)
+        if not target:
+            if self._log_callback:
+                self._log_callback(f"[!] Invalid target: Security validation failed")
+            return {}
         
         try:
             # Run the nmap scan
@@ -874,6 +965,15 @@ class NetworkMapper:
                                                 service_info += f" {version}"
                                     
                                     self._log_callback(f"    {port_id}/{protocol} {state} {service_info}")
+                                    
+                                    # Display script output for this port if available
+                                    for script in port.findall('script'):
+                                        script_id = script.attrib.get('id', 'unknown')
+                                        output = script.attrib.get('output', '').strip()
+                                        # Only show the first 100 chars of script output
+                                        if len(output) > 100:
+                                            output = output[:100] + "..."
+                                        self._log_callback(f"      {script_id}: {output}")
                             
                             # Get OS information
                             os = host.find('os')
@@ -883,6 +983,18 @@ class NetworkMapper:
                                     name = osmatch.attrib.get('name', 'Unknown')
                                     accuracy = osmatch.attrib.get('accuracy', '0')
                                     self._log_callback(f"    {name} (Accuracy: {accuracy}%)")
+                            
+                            # Get hostname from host-level scripts
+                            hostscripts = host.find('hostscripts')
+                            if hostscripts is not None:
+                                self._log_callback(f"  Host Scripts:")
+                                for script in hostscripts.findall('script'):
+                                    script_id = script.attrib.get('id', 'unknown')
+                                    output = script.attrib.get('output', '').strip()
+                                    # Only show the first 100 chars of script output
+                                    if len(output) > 100:
+                                        output = output[:100] + "..."
+                                    self._log_callback(f"    {script_id}: {output}")
                 
                 except Exception as e:
                     # If XML parsing fails, just provide the command and basic info
@@ -961,3 +1073,190 @@ class NetworkMapper:
             
         # Default to host if no specific type is identified
         return "host"
+
+    def _validate_ip(self, ip: str) -> str:
+        """
+        Validate that a string is a valid IP address.
+        
+        Args:
+            ip: IP address string to validate
+            
+        Returns:
+            str: Validated IP or empty string if invalid
+        """
+        ip = ip.strip()
+        # Basic validation for IPv4 address format
+        import re
+        ipv4_pattern = re.compile(r'^(\d{1,3}\.){3}\d{1,3}$')
+        if ipv4_pattern.match(ip):
+            # Check each octet is in range 0-255
+            try:
+                if all(0 <= int(octet) <= 255 for octet in ip.split('.')):
+                    return ip
+            except ValueError:
+                pass
+        return ""
+    
+    def _validate_port_range(self, port_range: str) -> str:
+        """
+        Validate port range format.
+        
+        Args:
+            port_range: Port range string to validate
+            
+        Returns:
+            str: Validated port range or empty string if invalid
+        """
+        port_range = port_range.strip()
+        # Check common port range formats
+        import re
+        
+        # Format: single port (e.g., 80)
+        if re.match(r'^\d+$', port_range):
+            port = int(port_range)
+            if 1 <= port <= 65535:
+                return port_range
+        
+        # Format: port range (e.g., 1-1000)
+        elif re.match(r'^\d+-\d+$', port_range):
+            start, end = map(int, port_range.split('-'))
+            if 1 <= start <= end <= 65535:
+                return port_range
+        
+        # Format: comma-separated ports (e.g., 22,80,443)
+        elif re.match(r'^(\d+,)+\d+$', port_range):
+            ports = port_range.split(',')
+            if all(1 <= int(port) <= 65535 for port in ports):
+                return port_range
+        
+        # Format: combination (e.g., 22,80,100-200)
+        elif re.match(r'^((\d+)|(\d+-\d+))(,((\d+)|(\d+-\d+)))*$', port_range):
+            parts = port_range.split(',')
+            valid = True
+            
+            for part in parts:
+                if '-' in part:
+                    start, end = map(int, part.split('-'))
+                    if not (1 <= start <= end <= 65535):
+                        valid = False
+                        break
+                else:
+                    try:
+                        port = int(part)
+                        if not (1 <= port <= 65535):
+                            valid = False
+                            break
+                    except ValueError:
+                        valid = False
+                        break
+            
+            if valid:
+                return port_range
+        
+        return ""
+    
+    def _validate_script_args(self, script_args: str) -> str:
+        """
+        Validate and sanitize script arguments.
+        
+        Args:
+            script_args: Script arguments string to validate
+            
+        Returns:
+            str: Sanitized script arguments or empty string if invalid
+        """
+        script_args = script_args.strip()
+        
+        # Whitelist approach: allow only known script categories and common scripts
+        allowed_categories = [
+            "auth", "broadcast", "brute", "default", "discovery", "dos", "exploit", 
+            "external", "fuzzer", "intrusive", "malware", "safe", "version", "vuln"
+        ]
+        
+        # Allow comma-separated list of categories/scripts
+        parts = script_args.split(',')
+        valid_parts = []
+        
+        import re
+        for part in parts:
+            part = part.strip()
+            # Allow script categories
+            if part in allowed_categories:
+                valid_parts.append(part)
+            # Allow script names with alphanumeric chars, hyphens, and underscores
+            elif re.match(r'^[a-zA-Z0-9_\-]+$', part):
+                valid_parts.append(part)
+        
+        if valid_parts:
+            return ','.join(valid_parts)
+        
+        return ""
+    
+    def _validate_custom_args(self, custom_args: str) -> str:
+        """
+        Validate and sanitize custom nmap arguments.
+        
+        Args:
+            custom_args: Custom arguments string to validate
+            
+        Returns:
+            str: Sanitized custom arguments or empty string if dangerous commands detected
+        """
+        custom_args = custom_args.strip()
+        
+        # Check for shell command injection attempts
+        dangerous_chars = [';', '&', '|', '`', '$', '(', ')', '<', '>', '{', '}']
+        if any(char in custom_args for char in dangerous_chars):
+            logger.warning(f"Potential command injection detected in nmap args: {custom_args}")
+            return ""
+        
+        # Strip any sudo or nmap command itself
+        custom_args = custom_args.replace("sudo", "").replace("nmap", "").strip()
+        
+        return custom_args
+    
+    def _validate_target(self, target: str) -> str:
+        """
+        Validate and sanitize target specification.
+        
+        Args:
+            target: Target string to validate
+            
+        Returns:
+            str: Sanitized target or empty string if invalid
+        """
+        target = target.strip()
+        
+        # Check for shell command injection attempts
+        dangerous_chars = [';', '&', '|', '`', '$', '(', ')', '<', '>', '{', '}']
+        if any(char in target for char in dangerous_chars):
+            logger.warning(f"Potential command injection detected in target: {target}")
+            return ""
+        
+        # Basic validation for IP, CIDR, or hostname
+        import re
+        
+        # IPv4 address
+        if re.match(r'^(\d{1,3}\.){3}\d{1,3}$', target):
+            if all(0 <= int(octet) <= 255 for octet in target.split('.')):
+                return target
+        
+        # CIDR notation
+        elif re.match(r'^(\d{1,3}\.){3}\d{1,3}/\d{1,2}$', target):
+            ip, prefix = target.split('/')
+            if all(0 <= int(octet) <= 255 for octet in ip.split('.')) and 0 <= int(prefix) <= 32:
+                return target
+        
+        # Domain/hostname validation - basic check
+        elif re.match(r'^[a-zA-Z0-9]([a-zA-Z0-9\-\.]+)?[a-zA-Z0-9](\.[a-zA-Z]{2,})+$', target):
+            return target
+        
+        # IP range in nmap format: 192.168.1.1-254
+        elif re.match(r'^(\d{1,3}\.){3}\d{1,3}-\d{1,3}$', target):
+            base, range_end = target.rsplit('-', 1)
+            if all(0 <= int(octet) <= 255 for octet in base.split('.')) and 0 <= int(range_end) <= 255:
+                return target
+        
+        # Return the original target if we can't determine its validity
+        # The python-nmap library will handle errors
+        return target
