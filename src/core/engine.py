@@ -190,9 +190,10 @@ class AptEngine:
         """Register command handlers for all modules."""
         # Register recon module handlers
         self.dispatcher.register_handler("recon:scan", self.recon.scan)
-        self.dispatcher.register_handler("recon:dns_lookup", self.recon.dns_lookup)
-        self.dispatcher.register_handler("recon:whois_lookup", self.recon.whois_lookup)
-        self.dispatcher.register_handler("recon:port_scan", self.recon.scan_ports)
+        # The following methods don't exist directly, use network utils methods instead
+        self.dispatcher.register_handler("recon:dns_lookup", self.network.resolve_hostname if hasattr(self.network, 'resolve_hostname') else self.recon.network.resolve_hostname)
+        self.dispatcher.register_handler("recon:whois_lookup", self.network.whois_lookup if hasattr(self.network, 'whois_lookup') else self.recon.network.whois_lookup)
+        self.dispatcher.register_handler("recon:port_scan", self.network.port_scan if hasattr(self.network, 'port_scan') else self.recon.network.port_scan)
         
         # Register network mapper handlers
         self.dispatcher.register_handler("network:map", self.network_mapper.map_network)
@@ -216,28 +217,28 @@ class AptEngine:
         self.dispatcher.register_handler("web:identify", self.web_scanner.identify_technologies)
         
         # Register vulnerability scanner handlers
-        self.dispatcher.register_handler("vuln:scan", self.vuln_scanner.scan_target)
-        self.dispatcher.register_handler("vuln:check", self.vuln_scanner.check_vulnerability)
+        self.dispatcher.register_handler("vuln_scanner:scan", self.vuln_scanner.scan_target)
+        self.dispatcher.register_handler("vuln_scanner:check", self.vuln_scanner.check_vulnerability)
         
         # Register brute force handlers
-        self.dispatcher.register_handler("brute:attack", self.brute_force.attack)
-        self.dispatcher.register_handler("brute:wordlist", self.brute_force.generate_wordlist)
+        self.dispatcher.register_handler("brute_force:attack", self.brute_force.attack)
+        self.dispatcher.register_handler("brute_force:wordlist", self.brute_force.generate_wordlist)
         
         # Register auth bypass handlers
-        self.dispatcher.register_handler("auth:bypass", self.auth_bypass.test_target)
-        self.dispatcher.register_handler("auth:techniques", self.auth_bypass.get_techniques)
+        self.dispatcher.register_handler("auth_bypass:test", self.auth_bypass.test_target)
+        self.dispatcher.register_handler("auth_bypass:techniques", self.auth_bypass.get_techniques)
         
         # Register payload generation handlers
-        self.dispatcher.register_handler("payload:generate", self.payload_gen.create_payload)
-        self.dispatcher.register_handler("payload:list", self.payload_gen.list_payloads)
+        self.dispatcher.register_handler("payload_gen:generate", self.payload_gen.create_payload)
+        self.dispatcher.register_handler("payload_gen:list", self.payload_gen.list_payloads)
         
         # Register exploit execution handlers
-        self.dispatcher.register_handler("exploit:execute", self.exploit_exec.execute_exploit)
-        self.dispatcher.register_handler("exploit:list", self.exploit_exec.get_available_exploits)
+        self.dispatcher.register_handler("exploit_exec:execute", self.exploit_exec.execute_exploit)
+        self.dispatcher.register_handler("exploit_exec:list", self.exploit_exec.get_available_exploits)
         
         # Register report generation handlers
-        self.dispatcher.register_handler("report:generate", self.report_gen.generate_report)
-        self.dispatcher.register_handler("report:list", self.report_gen.list_reports)
+        self.dispatcher.register_handler("report_gen:generate", self.report_gen.generate_report)
+        self.dispatcher.register_handler("report_gen:list", self.report_gen.list_reports)
         
         # Register engine handlers
         self.dispatcher.register_handler("engine:status", self.get_status)
